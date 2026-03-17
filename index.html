@@ -7,136 +7,153 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--cpl-black:#111111;--cpl-pink:#FF2D78;--cpl-pink-h:#e01e66;--cpl-pink-bg:#FFF0F5;--cpl-pink-border:#FFBAD4;--cpl-border:#E5E5E5;--bg:#F7F7F7;--white:#fff;--text:#111;--muted:#888;--light:#F4F4F4}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
-.app{display:grid;grid-template-columns:370px 1fr;height:100vh;overflow:hidden;background:var(--white);box-shadow:0 2px 20px rgba(0,0,0,0.08)}
-/* LEFT PANEL */
-.lp{display:flex;flex-direction:column;border-right:1px solid var(--cpl-border);height:100vh}
-.lp-head{background:var(--cpl-black);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.lp-logo-line1{color:white;font-size:16px;font-weight:800;letter-spacing:-0.4px;line-height:1}
+:root{--cpl-black:#111111;--cpl-pink:#FF2D78;--cpl-pink-h:#e01e66;--cpl-pink-bg:#FFF0F5;--cpl-pink-border:#FFBAD4;--cpl-border:#E5E5E5;--white:#fff;--text:#111;--muted:#888;--light:#F4F4F4}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--text);background:#F7F7F7;min-height:100vh}
+.app{display:grid;grid-template-columns:380px 1fr;height:100vh;overflow:hidden;background:var(--white)}
+/* LEFT */
+.lp{display:flex;flex-direction:column;border-right:1px solid var(--cpl-border);height:100vh;overflow:hidden}
+.lp-head{background:var(--cpl-black);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lp-logo-line1{color:white;font-size:15px;font-weight:800;letter-spacing:-0.4px;line-height:1}
 .lp-logo-line1 span{color:var(--cpl-pink)}
 .lp-logo-line2{color:#666;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
 .lp-badge{background:var(--cpl-pink);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
 .mode-bar{display:flex;border-bottom:1px solid var(--cpl-border);flex-shrink:0}
-.mode-btn{flex:1;padding:10px 0;font-size:12px;font-weight:600;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--muted);border-bottom:2.5px solid transparent;transition:all 0.15s}
+.mode-btn{flex:1;padding:10px 0;font-size:12px;font-weight:600;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--muted);border-bottom:2.5px solid transparent;transition:all .15s}
 .mode-btn.on{color:var(--cpl-pink);border-bottom-color:var(--cpl-pink);background:var(--cpl-pink-bg)}
-.lp-body{flex:1;overflow-y:auto;padding:14px 16px}
-.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:0.04em}
-.fg{margin-bottom:11px}
-.fg input,.fg select,.fg textarea{width:100%;padding:8px 10px;border:1px solid var(--cpl-border);border-radius:6px;font-family:inherit;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border 0.15s}
+.lp-body{flex:1;overflow-y:auto;padding:12px 15px}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.04em}
+.fg{margin-bottom:10px}
+.fg input,.fg select,.fg textarea{width:100%;padding:7px 10px;border:1px solid var(--cpl-border);border-radius:6px;font-family:inherit;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border .15s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--cpl-pink)}
-.fg textarea{height:52px;resize:none}
+.fg textarea{height:48px;resize:none}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.sep{font-size:10px;font-weight:700;color:var(--cpl-pink);text-transform:uppercase;letter-spacing:0.08em;margin:14px 0 9px;padding-bottom:5px;border-bottom:2px solid var(--cpl-pink-bg);display:flex;align-items:center;gap:6px}
-.olist{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow-y:auto;margin-top:6px}
-.ocard{padding:8px 10px;border:1px solid var(--cpl-border);border-radius:7px;cursor:pointer;transition:all 0.1s;display:flex;align-items:flex-start;gap:8px}
+.sep{font-size:10px;font-weight:700;color:var(--cpl-pink);text-transform:uppercase;letter-spacing:.08em;margin:12px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--cpl-pink-bg)}
+.olist{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;margin-top:6px}
+.ocard{padding:8px 10px;border:1px solid var(--cpl-border);border-radius:7px;cursor:pointer;transition:all .1s;display:flex;align-items:flex-start;gap:8px}
 .ocard:hover{border-color:var(--cpl-pink-border);background:var(--cpl-pink-bg)}
 .ocard.on{background:var(--cpl-pink-bg);border-color:var(--cpl-pink)}
 .ocard-body{flex:1;min-width:0}
 .ocard-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ocard-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ocard-price{font-size:12px;font-weight:700;color:var(--cpl-pink);white-space:nowrap}
-.tag{font-size:9px;padding:2px 5px;border-radius:10px;font-weight:700;display:inline-block;margin-top:3px}
+.tag{font-size:9px;padding:2px 5px;border-radius:10px;font-weight:700;display:inline-block;margin-top:2px}
 .ta{background:#EDE9FE;color:#5B21B6}.ts{background:#DBEAFE;color:#1E40AF}.tu{background:#D1FAE5;color:#065F46}.td{background:#FEF3C7;color:#92400E}
-/* RIGHT PANEL */
-.rp{display:flex;flex-direction:column;height:100vh;background:#F8F8F8}
-.preview-wrap{flex:1;overflow-y:auto;padding:24px}
+/* RIGHT */
+.rp{display:flex;flex-direction:column;height:100vh;background:#F0F0F0}
+.preview-wrap{flex:1;overflow-y:auto;padding:20px}
 /* DOCUMENT */
-.doc{max-width:620px;margin:0 auto;background:var(--white);border-radius:10px;box-shadow:0 1px 12px rgba(0,0,0,0.07);overflow:hidden}
-.doc-header-bar{height:6px;background:linear-gradient(90deg,var(--cpl-black) 0%,var(--cpl-pink) 100%)}
-.doc-inner{padding:24px 28px}
-.doc-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid var(--cpl-black);margin-bottom:18px}
-.brand-name{font-size:22px;font-weight:900;color:var(--cpl-black);letter-spacing:-0.8px;line-height:1}
+.doc{max-width:640px;margin:0 auto;background:var(--white);border-radius:8px;box-shadow:0 1px 10px rgba(0,0,0,.08);overflow:hidden;font-size:12px}
+.doc-bar{height:5px;background:linear-gradient(90deg,var(--cpl-black) 0%,var(--cpl-pink) 100%)}
+.doc-inner{padding:22px 26px}
+/* DOC HEADER */
+.doc-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:3px solid var(--cpl-black);margin-bottom:16px}
+.brand-name{font-size:20px;font-weight:900;color:var(--cpl-black);letter-spacing:-.8px;line-height:1}
 .brand-name span{color:var(--cpl-pink)}
-.brand-mcn{font-size:9px;color:#bbb;letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
-.brand-mode{font-size:10px;font-weight:700;color:var(--cpl-pink);background:var(--cpl-pink-bg);padding:2px 9px;border-radius:4px;display:inline-block;margin-top:5px;border:1px solid var(--cpl-pink-border)}
+.brand-mcn{font-size:8px;color:#bbb;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.brand-addr{font-size:9px;color:#999;margin-top:4px;line-height:1.6}
+.brand-legal{font-size:9px;color:#bbb;margin-top:3px}
+.brand-mode{font-size:10px;font-weight:700;color:var(--cpl-pink);background:var(--cpl-pink-bg);padding:2px 8px;border-radius:3px;display:inline-block;margin-top:4px;border:1px solid var(--cpl-pink-border)}
 .doc-right{text-align:right}
-.doc-num{font-size:18px;font-weight:900;color:var(--cpl-black)}
-.doc-sub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.7}
-.doc-parties{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-.party{padding:11px 13px;border-radius:7px;border-left:4px solid var(--cpl-black)}
-.party.emit{background:#F7F7F7}
+.doc-title{font-size:20px;font-weight:900;color:var(--cpl-black)}
+.doc-num{font-size:12px;font-weight:700;color:var(--cpl-pink);margin-top:2px}
+.doc-sub{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.7}
+/* PARTIES */
+.doc-parties{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.party{padding:10px 12px;border-radius:6px;border-left:3px solid var(--cpl-black)}
+.party.emit{background:#F8F8F8}
 .party.cli{border-left-color:var(--cpl-pink);background:var(--cpl-pink-bg)}
-.party-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#bbb;margin-bottom:5px}
-.party-name{font-size:13px;font-weight:700;color:var(--cpl-black)}
-.party-info{font-size:11px;color:#666;margin-top:3px;line-height:1.55}
-table.lt{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+.party-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#bbb;margin-bottom:4px}
+.party-name{font-size:12px;font-weight:700;color:var(--cpl-black)}
+.party-info{font-size:10px;color:#666;margin-top:2px;line-height:1.55}
+/* TABLE */
+table.lt{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px}
 table.lt thead tr{background:var(--cpl-black)}
-table.lt thead th{color:white;padding:8px 10px;font-weight:600;font-size:11px;text-align:left}
+table.lt thead th{color:white;padding:7px 9px;font-weight:600;font-size:10px;text-align:left}
 table.lt thead th:nth-child(2),table.lt thead th:nth-child(3),table.lt thead th:nth-child(4){text-align:right}
 table.lt tbody tr{border-bottom:1px solid var(--cpl-border)}
 table.lt tbody tr:nth-child(even){background:#FAFAFA}
-table.lt td{padding:7px 10px;vertical-align:middle}
+table.lt td{padding:6px 9px;vertical-align:middle}
 table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-align:right}
-.qin{width:36px;text-align:center;font-size:11px;padding:3px;font-family:inherit;border:1px solid var(--cpl-border);border-radius:4px;outline:none}
+.qin{width:34px;text-align:center;font-size:11px;padding:2px 4px;font-family:inherit;border:1px solid var(--cpl-border);border-radius:3px;outline:none}
 .qin:focus{border-color:var(--cpl-pink)}
-.rmv{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 4px;font-family:inherit;margin-left:4px}
+.rmv{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 3px;font-family:inherit}
 .rmv:hover{color:var(--cpl-pink)}
+/* TOTALS */
 .totals-wrap{display:flex;justify-content:flex-end;margin-bottom:14px}
-.totals-box{width:220px;font-size:12px}
-.trow{display:flex;justify-content:space-between;padding:4px 0;color:#777;border-bottom:1px solid var(--cpl-border)}
+.totals-box{width:220px}
+.trow{display:flex;justify-content:space-between;padding:3px 0;color:#777;border-bottom:1px solid var(--cpl-border);font-size:11px}
 .trow.disc{color:var(--cpl-pink);font-weight:600}
-.trow.final{font-size:15px;font-weight:900;color:var(--cpl-black);padding:8px 0;border-top:2.5px solid var(--cpl-black);margin-top:3px;border-bottom:none}
-.tva-note{font-size:9px;color:#ccc;text-align:right;margin-top:5px}
-.cond-box{font-size:11px;color:#777;padding:10px 12px;background:#F9F9F9;border-radius:6px;border-left:3px solid var(--cpl-pink);line-height:1.65}
-.doc-foot{margin-top:16px;text-align:center;font-size:9px;color:#ccc;padding-top:10px;border-top:1px solid var(--cpl-border)}
-.doc-empty{text-align:center;padding:36px 20px;color:#ccc;font-size:13px}
-.doc-empty-icon{font-size:32px;margin-bottom:8px}
+.trow.final{font-size:14px;font-weight:900;color:var(--cpl-black);padding:7px 0;border-top:2.5px solid var(--cpl-black);margin-top:3px;border-bottom:none}
+.tva-note{font-size:9px;color:#bbb;text-align:right;margin-top:3px}
+/* PAYMENT */
+.payment-box{background:#F8F8F8;border-radius:6px;border-left:3px solid var(--cpl-black);padding:10px 12px;margin-bottom:14px}
+.payment-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#bbb;margin-bottom:6px}
+.payment-grid{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:10px}
+.payment-label{color:#999;font-weight:600}
+.payment-val{color:var(--text);font-family:monospace;font-size:10px}
+/* CONDITIONS */
+.cond-box{font-size:10px;color:#777;padding:9px 11px;background:#F9F9F9;border-radius:5px;border-left:3px solid var(--cpl-pink);line-height:1.65;margin-bottom:14px}
+/* SIGNATURE */
+.sig-section{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+.sig-box{border:1px dashed var(--cpl-border);border-radius:6px;padding:12px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between}
+.sig-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#bbb;margin-bottom:6px}
+.sig-name{font-size:10px;color:#999;margin-bottom:8px}
+.sig-line{border-bottom:1px solid var(--cpl-border);margin-top:auto;padding-top:30px}
+.sig-mention{font-size:9px;color:#bbb;margin-top:4px;text-align:center}
+.bpa-box{background:var(--cpl-pink-bg);border:1px solid var(--cpl-pink-border);border-radius:6px;padding:10px 12px;margin-bottom:14px;text-align:center}
+.bpa-title{font-size:11px;font-weight:700;color:var(--cpl-pink);margin-bottom:4px}
+.bpa-text{font-size:10px;color:#666;line-height:1.5}
+/* FOOTER */
+.doc-foot{margin-top:14px;text-align:center;font-size:9px;color:#ccc;padding-top:10px;border-top:1px solid var(--cpl-border);line-height:1.6}
+.doc-empty{text-align:center;padding:32px 20px;color:#ccc;font-size:12px}
 /* ACTION BAR */
-.abar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--cpl-border);background:var(--white);flex-shrink:0}
-.btn-blk{flex:1;background:var(--cpl-black);color:white;border:none;padding:11px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.abar{display:flex;gap:8px;padding:11px 14px;border-top:1px solid var(--cpl-border);background:var(--white);flex-shrink:0;align-items:center}
+.btn-blk{flex:1;background:var(--cpl-black);color:white;border:none;padding:10px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
 .btn-blk:hover{background:#2a2a2a}
-.btn-pk{flex:1;background:var(--cpl-pink);color:white;border:none;padding:11px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.btn-pk{flex:1;background:var(--cpl-pink);color:white;border:none;padding:10px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
 .btn-pk:hover{background:var(--cpl-pink-h)}
 .btn-pk:disabled{background:#e0b0c0;cursor:not-allowed}
-.btn-out{padding:11px 14px;background:transparent;border:1px solid var(--cpl-border);border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--muted);transition:background 0.15s}
+.btn-out{padding:10px 13px;background:transparent;border:1px solid var(--cpl-border);border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--muted);transition:background .15s}
 .btn-out:hover{background:var(--light)}
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:sp 0.6s linear infinite;vertical-align:middle;margin-right:5px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:5px}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;white-space:nowrap;color:white;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
-.toast.ok{background:var(--cpl-black)}
-.toast.err{background:#c0392b}
-.toast.grn{background:#27ae60}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;white-space:nowrap;color:white;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.ok{background:var(--cpl-black)}.toast.err{background:#c0392b}.toast.grn{background:#27ae60}
 .toast.show{opacity:1}
 /* NOTION BANNER */
 .notion-banner{display:none;align-items:center;gap:8px;font-size:12px;color:#065F46;background:#D1FAE5;padding:8px 16px;border-top:1px solid #A7F3D0;flex-shrink:0}
 .notion-banner a{color:#065F46;font-weight:700;text-decoration:underline}
 .notion-banner.show{display:flex}
-/* WORKFLOW BADGE */
-.workflow-steps{display:flex;gap:6px;padding:10px 16px;background:var(--cpl-black);flex-shrink:0}
-.ws{display:flex;align-items:center;gap:5px;font-size:10px;color:#666;flex:1;justify-content:center}
-.ws.active{color:var(--cpl-pink)}
-.ws-num{width:18px;height:18px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#555;flex-shrink:0}
-.ws.active .ws-num{background:var(--cpl-pink);color:white}
-.ws-label{font-size:10px;white-space:nowrap}
-@media print{.lp,.abar,.workflow-steps,.notion-banner{display:none!important}.rp{height:auto}.preview-wrap{padding:0}.doc{box-shadow:none;border-radius:0}}
+/* PRINT */
+@media print{.lp,.abar,.notion-banner{display:none!important}.rp{height:auto;background:white}.preview-wrap{padding:0}.doc{box-shadow:none;border-radius:0}}
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- LEFT -->
+  <!-- ═══ LEFT PANEL ═══ -->
   <div class="lp">
     <div class="lp-head">
       <div>
         <div class="lp-logo-line1">ÇA PART <span>EN LIVE</span> !</div>
-        <div class="lp-logo-line2">MultiChannel Network</div>
+        <div class="lp-logo-line2">MultiChannel Network — Dyma Academy</div>
       </div>
-      <div class="lp-badge">Générateur de devis</div>
+      <div class="lp-badge">Devis</div>
     </div>
     <div class="mode-bar">
       <button class="mode-btn on" id="btn-a" onclick="setMode('academy')">🎓 Academy</button>
       <button class="mode-btn" id="btn-s" onclick="setMode('studio')">🎬 Studio</button>
     </div>
     <div class="lp-body">
+
       <div class="sep">👤 Client</div>
       <div class="fg">
         <label class="lbl">Client existant</label>
         <select onchange="pickClient(this.value)">
           <option value="">— Sélectionner —</option>
           <option value="new">+ Nouveau client</option>
-          <option value="MENCIA||06 59 38 86 46|">MENCIA — Souria Chadli</option>
+          <option value="MENCIA|Souria Chadli|06 59 38 86 46|">MENCIA — Souria Chadli</option>
           <option value="TYPANIA|Christophe Gabriel|0614698704|Christophe.gabriel@typania.fr">TYPANIA — Christophe Gabriel</option>
           <option value="La Ferme de Loro|Damien Colin|0609301626|damien.colin@loro.fr">La Ferme de Loro — Damien Colin</option>
           <option value="By CracoTTe|Johanne Douard|0662051691|douardjohanne@gmail.com">By CracoTTe — Johanne Douard</option>
@@ -158,8 +175,10 @@ table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-
           <div class="fg"><label class="lbl">Email</label><input id="nc-e" type="email" placeholder="email@..." oninput="syncNC()"/></div>
           <div class="fg"><label class="lbl">Téléphone</label><input id="nc-t" type="tel" placeholder="06..." oninput="syncNC()"/></div>
         </div>
-        <div class="fg"><label class="lbl">Adresse</label><input id="nc-a" type="text" placeholder="Adresse complète" oninput="syncNC()"/></div>
+        <div class="fg"><label class="lbl">Adresse client</label><input id="nc-a" type="text" placeholder="Adresse complète" oninput="syncNC()"/></div>
+        <div class="fg"><label class="lbl">SIRET client</label><input id="nc-s" type="text" placeholder="000 000 000 00000" oninput="syncNC()"/></div>
       </div>
+
       <div class="sep">📋 Conditions</div>
       <div class="r2">
         <div class="fg"><label class="lbl">Engagement</label>
@@ -167,9 +186,17 @@ table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-
             <option value="">— —</option><option>3 Mois</option><option>6 Mois</option><option>12 Mois</option>
           </select>
         </div>
-        <div class="fg"><label class="lbl">Commercial</label>
-          <select id="s-com" onchange="renderDoc()"><option>Sebastien</option></select>
+        <div class="fg"><label class="lbl">Délai d'exécution</label>
+          <input id="i-delai" type="text" placeholder="ex: 7 jours ouvrés" oninput="renderDoc()"/>
         </div>
+      </div>
+      <div class="fg"><label class="lbl">Modalités de paiement</label>
+        <select id="s-paiement" onchange="renderDoc()">
+          <option value="Virement bancaire à réception de facture">Virement à réception</option>
+          <option value="30% à la commande, solde à la livraison">30% commande / solde livraison</option>
+          <option value="50% à la commande, 50% à la livraison">50% / 50%</option>
+          <option value="Paiement comptant">Comptant</option>
+        </select>
       </div>
       <div class="r3">
         <div class="fg"><label class="lbl">Remise (%)</label><input id="i-rem" type="number" min="0" max="100" placeholder="0" oninput="renderDoc()"/></div>
@@ -180,59 +207,126 @@ table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-
         </div>
         <div class="fg"><label class="lbl">Motif</label><input id="i-mot" type="text" placeholder="..." oninput="renderDoc()"/></div>
       </div>
-      <div class="fg"><label class="lbl">Note / conditions</label><textarea id="i-note" placeholder="Conditions particulières, délais de paiement..."></textarea></div>
+      <div class="fg"><label class="lbl">Note / conditions particulières</label><textarea id="i-note" placeholder="Informations complémentaires..." oninput="renderDoc()"></textarea></div>
+
       <div class="sep">🛒 Prestations</div>
-      <div class="fg"><input type="text" id="srch" placeholder="🔍  Rechercher une prestation..." oninput="renderOffers(this.value)"/></div>
+      <div class="fg"><input type="text" id="srch" placeholder="🔍  Rechercher..." oninput="renderOffers(this.value)"/></div>
       <div class="olist" id="olist"></div>
     </div>
   </div>
-  <!-- RIGHT -->
+
+  <!-- ═══ RIGHT PANEL ═══ -->
   <div class="rp">
-    <div class="workflow-steps">
-      <div class="ws active" id="ws1"><div class="ws-num">1</div><div class="ws-label">Configurer</div></div>
-      <div style="color:#333;display:flex;align-items:center;font-size:10px">›</div>
-      <div class="ws" id="ws2"><div class="ws-num">2</div><div class="ws-label">Exporter PDF</div></div>
-      <div style="color:#333;display:flex;align-items:center;font-size:10px">›</div>
-      <div class="ws" id="ws3"><div class="ws-num">3</div><div class="ws-label">Envoyer client</div></div>
-      <div style="color:#333;display:flex;align-items:center;font-size:10px">›</div>
-      <div class="ws" id="ws4"><div class="ws-num">4</div><div class="ws-label">Sauver Notion</div></div>
-    </div>
     <div class="preview-wrap">
       <div class="doc" id="doc">
-        <div class="doc-header-bar"></div>
+        <div class="doc-bar"></div>
         <div class="doc-inner">
+
+          <!-- HEADER DOC -->
           <div class="doc-top">
             <div>
               <div class="brand-name">ÇA PART <span>EN LIVE</span> !</div>
               <div class="brand-mcn">MultiChannel Network</div>
+              <div class="brand-addr">
+                Dyma Academy — 1E rue George Bizet<br>
+                54 500 Vandœuvre-lès-Nancy<br>
+                SIRET : 920 158 102 00029
+              </div>
+              <div class="brand-legal">SAS — RCS Nancy</div>
               <div class="brand-mode" id="d-mode">🎓 Academy</div>
             </div>
             <div class="doc-right">
-              <div class="doc-num" id="d-num">DEVIS</div>
+              <div class="doc-title">DEVIS</div>
+              <div class="doc-num" id="d-num">N° CPL-2026-012</div>
               <div class="doc-sub" id="d-dates"></div>
             </div>
           </div>
+
+          <!-- PARTIES -->
           <div class="doc-parties">
             <div class="party emit">
               <div class="party-lbl">Émetteur</div>
-              <div class="party-name">Ça Part En Live !</div>
-              <div class="party-info">MultiChannel Network<br><span id="d-com">Sebastien</span></div>
+              <div class="party-name">Dyma Academy</div>
+              <div class="party-info">
+                Ça Part En Live ! — MultiChannel Network<br>
+                1E rue George Bizet, 54 500 Vandœuvre-lès-Nancy<br>
+                SIRET : 920 158 102 00029<br>
+                SAS — <span id="d-com">Sebastien</span>
+              </div>
             </div>
             <div class="party cli">
-              <div class="party-lbl">Client</div>
+              <div class="party-lbl">Client / Destinataire</div>
               <div class="party-name" id="d-cn">—</div>
               <div class="party-info" id="d-ci"></div>
             </div>
           </div>
-          <div id="d-lines"><div class="doc-empty"><div class="doc-empty-icon">📄</div>Sélectionnez des prestations<br>dans le panneau de gauche</div></div>
+
+          <!-- LINES -->
+          <div id="d-lines">
+            <div class="doc-empty">📄 Sélectionnez des prestations dans le panneau gauche</div>
+          </div>
+
+          <!-- TOTALS -->
           <div id="d-totals"></div>
+
+          <!-- PAIEMENT -->
+          <div class="payment-box">
+            <div class="payment-title">Modalités de règlement</div>
+            <div class="payment-grid">
+              <span class="payment-label">Mode</span><span class="payment-val" id="d-pay-mode">Virement bancaire à réception de facture</span>
+              <span class="payment-label">Banque</span><span class="payment-val">Banque Populaire</span>
+              <span class="payment-label">IBAN</span><span class="payment-val">FR76 1470 7000 6833 3214 7903 322</span>
+              <span class="payment-label">BIC</span><span class="payment-val">CCBPFRPPMTZ</span>
+              <span class="payment-label">Délai d'exécution</span><span class="payment-val" id="d-delai">—</span>
+            </div>
+          </div>
+
+          <!-- CONDITIONS -->
           <div id="d-cond"></div>
-          <div class="doc-foot">Ça Part En Live ! — MultiChannel Network &nbsp;|&nbsp; Généré le <span id="d-today"></span> &nbsp;|&nbsp; Exonéré de TVA — Art. 293B CGI</div>
+
+          <!-- BON POUR ACCORD -->
+          <div class="bpa-box">
+            <div class="bpa-title">✍️ Bon pour accord</div>
+            <div class="bpa-text">En signant ce devis, le client accepte les conditions générales de vente et autorise Ça Part En Live ! à réaliser les prestations décrites ci-dessus.<br>Un acompte de 30% est requis pour démarrer la mission.</div>
+          </div>
+
+          <!-- SIGNATURES -->
+          <div class="sig-section">
+            <div class="sig-box">
+              <div>
+                <div class="sig-label">Signature émetteur</div>
+                <div class="sig-name">Ça Part En Live ! — Dyma Academy</div>
+              </div>
+              <div>
+                <div class="sig-line"></div>
+                <div class="sig-mention">Date et signature</div>
+              </div>
+            </div>
+            <div class="sig-box">
+              <div>
+                <div class="sig-label">Signature client — Bon pour accord</div>
+                <div class="sig-name" id="sig-client-name">Client</div>
+              </div>
+              <div>
+                <div class="sig-line"></div>
+                <div class="sig-mention">Date, signature et cachet</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="doc-foot">
+            Dyma Academy — Ça Part En Live ! SAS — 1E rue George Bizet, 54 500 Vandœuvre-lès-Nancy<br>
+            SIRET : 920 158 102 00029 — TVA non applicable, Art. 293B du CGI<br>
+            Tout devis signé vaut commande ferme — Validité 30 jours à compter de la date d'émission
+          </div>
+
         </div>
       </div>
     </div>
     <div class="notion-banner" id="notion-banner">
-      ✅ Devis enregistré dans Notion ! &nbsp;<a href="https://notion.so/312257fa155580349d62c2230c568f94" target="_blank" rel="noopener">Ouvrir la page Devis CPL →</a>
+      ✅ Devis enregistré dans Notion ! &nbsp;
+      <a href="https://notion.so/312257fa155580349d62c2230c568f94" target="_blank" rel="noopener">Ouvrir la page Devis CPL →</a>
       &nbsp;&nbsp;N'oubliez pas d'uploader le PDF dans la fiche.
     </div>
     <div class="abar">
@@ -243,6 +337,7 @@ table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
 <script>
 const OFFERS=[
   {id:0,n:'Pack "Accompagnement TikTokShop"',t:'Academy',p:4990,d:'Formation TikTok Shop, paramétrage, coaching Live, app satellite, suivi réseaux'},
@@ -263,15 +358,25 @@ const OFFERS=[
   {id:15,n:'Forfait déplacement 21–50 km',t:'Déplacement',p:89,d:'Déplacement et installation matériel jusqu\'à 50 km'},
   {id:16,n:'Forfait déplacement 51–100 km',t:'Déplacement',p:149,d:'Déplacement et installation matériel jusqu\'à 100 km'},
 ];
-let mode='academy',cart={};
-let cli={marque:'',nom:'',email:'',tel:'',adresse:''};
+
+// Numérotation : dernier devis Notion = 11, prochain = 12
+let nextDevisNum = 12;
+let mode='academy', cart={};
+let cli={marque:'',nom:'',email:'',tel:'',adresse:'',siret:''};
+
 const now=new Date();
 const toISO=d=>d.toISOString().slice(0,10);
 const toFR=d=>d.toLocaleDateString('fr-FR');
-const valid30=new Date(now);valid30.setDate(valid30.getDate()+30);
+const valid30=new Date(now); valid30.setDate(valid30.getDate()+30);
 const fmt=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
-document.getElementById('d-today').textContent=toFR(now);
-document.getElementById('d-dates').innerHTML=`Date : ${toFR(now)}<br>Validité : ${toFR(valid30)}`;
+const year=now.getFullYear();
+
+function devisNumStr(){return'CPL-'+year+'-'+String(nextDevisNum).padStart(3,'0');}
+
+// Init dates + numéro
+document.getElementById('d-dates').innerHTML='Date : '+toFR(now)+'<br>Validité : '+toFR(valid30);
+document.getElementById('d-num').textContent='N° '+devisNumStr();
+
 function setMode(m){
   mode=m;
   document.getElementById('btn-a').classList.toggle('on',m==='academy');
@@ -279,24 +384,51 @@ function setMode(m){
   document.getElementById('d-mode').textContent=m==='academy'?'🎓 Academy':'🎬 Studio';
   renderOffers(document.getElementById('srch').value);
 }
+
 function pickClient(v){
   const nc=document.getElementById('nc');
-  if(v==='new'){nc.style.display='block';cli={marque:'',nom:'',email:'',tel:'',adresse:''};updCli();}
-  else if(v){nc.style.display='none';const p=v.split('|');cli={marque:p[0]||'',nom:p[1]||'',tel:p[2]||'',email:p[3]||'',adresse:''};updCli();}
-  else{nc.style.display='none';cli={marque:'',nom:'',email:'',tel:'',adresse:''};updCli();}
+  if(v==='new'){nc.style.display='block';cli={marque:'',nom:'',email:'',tel:'',adresse:'',siret:''};updCli();}
+  else if(v){
+    nc.style.display='none';
+    const p=v.split('|');
+    cli={marque:p[0]||'',nom:p[1]||'',tel:p[2]||'',email:p[3]||'',adresse:'',siret:''};
+    updCli();
+  } else {nc.style.display='none';cli={marque:'',nom:'',email:'',tel:'',adresse:'',siret:''};updCli();}
 }
-function syncNC(){cli.marque=document.getElementById('nc-m').value;cli.nom=document.getElementById('nc-n').value;cli.email=document.getElementById('nc-e').value;cli.tel=document.getElementById('nc-t').value;cli.adresse=document.getElementById('nc-a').value;updCli();renderDoc();}
+
+function syncNC(){
+  cli.marque=document.getElementById('nc-m').value;
+  cli.nom=document.getElementById('nc-n').value;
+  cli.email=document.getElementById('nc-e').value;
+  cli.tel=document.getElementById('nc-t').value;
+  cli.adresse=document.getElementById('nc-a').value;
+  cli.siret=document.getElementById('nc-s').value;
+  updCli(); renderDoc();
+}
+
 function updCli(){
-  document.getElementById('d-cn').textContent=cli.marque||cli.nom||'—';
-  const l=[];if(cli.nom&&cli.marque)l.push(cli.nom);if(cli.email)l.push(cli.email);if(cli.tel)l.push(cli.tel);if(cli.adresse)l.push(cli.adresse);
-  document.getElementById('d-ci').innerHTML=l.join('<br>');
-  document.getElementById('d-com').textContent=document.getElementById('s-com').value||'Sebastien';
+  const cn=document.getElementById('d-cn');
+  const ci=document.getElementById('d-ci');
+  const scn=document.getElementById('sig-client-name');
+  cn.textContent=cli.marque||cli.nom||'—';
+  scn.textContent=cli.marque||cli.nom||'Client';
+  const l=[];
+  if(cli.nom&&cli.marque)l.push(cli.nom);
+  if(cli.adresse)l.push(cli.adresse);
+  if(cli.siret)l.push('SIRET : '+cli.siret);
+  if(cli.email)l.push(cli.email);
+  if(cli.tel)l.push(cli.tel);
+  ci.innerHTML=l.join('<br>');
+  document.getElementById('d-com').textContent=document.getElementById('s-com')?document.getElementById('s-com').value||'Sebastien':'Sebastien';
 }
+
 function tc(t){if(t==='Academy')return 'ta';if(t==='Studio')return 'ts';if(t==='Upsell')return 'tu';return 'td';}
+
 function renderOffers(f){
   const fc=(f||'').toLowerCase();
-  document.getElementById('olist').innerHTML=OFFERS.filter(o=>!fc||o.n.toLowerCase().includes(fc)||o.d.toLowerCase().includes(fc)).map(o=>`
-    <div class="ocard${cart[o.id]!==undefined?' on':''}" onclick="tog(${o.id})">
+  document.getElementById('olist').innerHTML=OFFERS
+    .filter(o=>!fc||o.n.toLowerCase().includes(fc)||o.d.toLowerCase().includes(fc))
+    .map(o=>`<div class="ocard${cart[o.id]!==undefined?' on':''}" onclick="tog(${o.id})">
       <div class="ocard-body">
         <div class="ocard-name">${o.n}</div>
         <span class="tag ${tc(o.t)}">${o.t}</span>
@@ -305,42 +437,120 @@ function renderOffers(f){
       <div class="ocard-price">${fmt(o.p)}</div>
     </div>`).join('');
 }
-function tog(id){if(cart[id]!==undefined){delete cart[id];}else{cart[id]=1;}renderOffers(document.getElementById('srch').value);renderDoc();setStep(Object.keys(cart).length>0?2:1);}
+
+function tog(id){
+  if(cart[id]!==undefined){delete cart[id];}else{cart[id]=1;}
+  renderOffers(document.getElementById('srch').value);
+  renderDoc();
+}
 function updQ(id,v){cart[id]=Math.max(1,parseInt(v)||1);renderDoc();}
-function rm(id){delete cart[id];renderOffers(document.getElementById('srch').value);renderDoc();if(!Object.keys(cart).length)setStep(1);}
+function rmItem(id){delete cart[id];renderOffers(document.getElementById('srch').value);renderDoc();}
+
 function renderDoc(){
   updCli();
+  // Sync paiement & délai
+  const payEl=document.getElementById('s-paiement');
+  if(payEl)document.getElementById('d-pay-mode').textContent=payEl.value||'Virement bancaire à réception de facture';
+  const delai=document.getElementById('i-delai').value;
+  document.getElementById('d-delai').textContent=delai||'—';
+
   const keys=Object.keys(cart);
-  const la=document.getElementById('d-lines'),ta=document.getElementById('d-totals'),ca=document.getElementById('d-cond');
-  if(!keys.length){la.innerHTML='<div class="doc-empty"><div class="doc-empty-icon">📄</div>Sélectionnez des prestations<br>dans le panneau de gauche</div>';ta.innerHTML='';ca.innerHTML='';return;}
+  const la=document.getElementById('d-lines');
+  const ta=document.getElementById('d-totals');
+  const ca=document.getElementById('d-cond');
+
+  if(!keys.length){
+    la.innerHTML='<div class="doc-empty">📄 Sélectionnez des prestations dans le panneau gauche</div>';
+    ta.innerHTML='';ca.innerHTML='';
+    return;
+  }
+
   let sub=0;
-  const rows=keys.map(k=>{const o=OFFERS[k];const q=cart[k];const lt=o.p*q;sub+=lt;return`<tr><td>${o.n}<br><span style="font-size:10px;color:#bbb">${o.d.substring(0,60)}${o.d.length>60?'…':''}</span></td><td><input class="qin" type="number" min="1" value="${q}" onchange="updQ(${k},this.value)"/></td><td>${fmt(o.p)}</td><td>${fmt(lt)}<button class="rmv" onclick="rm(${k})">×</button></td></tr>`;}).join('');
-  la.innerHTML=`<table class="lt"><thead><tr><th>Prestation</th><th>Qté</th><th>PU HT</th><th>Total HT</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const rows=keys.map(k=>{
+    const o=OFFERS[k];const q=cart[k];const lt=o.p*q;sub+=lt;
+    return`<tr>
+      <td><strong>${o.n}</strong><br><span style="font-size:9px;color:#aaa">${o.d.substring(0,65)}${o.d.length>65?'…':''}</span></td>
+      <td><input class="qin" type="number" min="1" value="${q}" onchange="updQ(${k},this.value)"/></td>
+      <td>${fmt(o.p)}</td>
+      <td>${fmt(lt)}<button class="rmv" onclick="rmItem(${k})">×</button></td>
+    </tr>`;
+  }).join('');
+
+  la.innerHTML=`<table class="lt">
+    <thead><tr><th>Désignation de la prestation</th><th style="text-align:right">Qté</th><th style="text-align:right">PU HT</th><th style="text-align:right">Total HT</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+
   const rp=parseFloat(document.getElementById('i-rem').value)||0;
-  const rm2=sub*(rp/100);const fin=sub-rm2;
-  let th=`<div class="totals-wrap"><div class="totals-box"><div class="trow"><span>Sous-total HT</span><span>${fmt(sub)}</span></div>`;
-  if(rp>0)th+=`<div class="trow disc"><span>Remise ${rp}%</span><span>− ${fmt(rm2)}</span></div>`;
-  th+=`<div class="trow final"><span>Total HT</span><span>${fmt(fin)}</span></div></div></div><div class="tva-note">Entreprise exonérée de TVA — Art. 293B du CGI</div>`;
+  const rm2=sub*(rp/100);
+  const fin=sub-rm2;
+
+  let th=`<div class="totals-wrap"><div class="totals-box">
+    <div class="trow"><span>Sous-total HT</span><span>${fmt(sub)}</span></div>`;
+  if(rp>0)th+=`<div class="trow disc"><span>Remise ${rp}%${document.getElementById('s-rdur').value?' ('+document.getElementById('s-rdur').value+')':''}</span><span>− ${fmt(rm2)}</span></div>`;
+  th+=`<div class="trow final"><span>TOTAL HT</span><span>${fmt(fin)}</span></div>
+  </div></div>
+  <div class="tva-note">TVA non applicable — Art. 293B du CGI</div>`;
   ta.innerHTML=th;
-  const eng=document.getElementById('s-eng').value,note=document.getElementById('i-note').value;
-  const cp=[];if(eng)cp.push('Engagement : '+eng);cp.push('Devis valable 30 jours');if(note)cp.push(note);
-  ca.innerHTML=`<div class="cond-box" style="margin-top:12px">${cp.join(' &nbsp;|&nbsp; ')}</div>`;
+
+  const eng=document.getElementById('s-eng').value;
+  const note=document.getElementById('i-note').value;
+  const cp=[];
+  if(eng)cp.push('Engagement : <strong>'+eng+'</strong>');
+  cp.push('Devis valable <strong>30 jours</strong> à compter du '+toFR(now));
+  if(note)cp.push(note);
+  ca.innerHTML=`<div class="cond-box" style="margin-bottom:14px">${cp.join(' &nbsp;·&nbsp; ')}</div>`;
 }
-function setStep(n){for(let i=1;i<=4;i++){document.getElementById('ws'+i).classList.toggle('active',i===n);}}
+
+async function fetchNextNum(){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:200,
+        system:'Réponds UNIQUEMENT en JSON: {"next_num": <nombre>}',
+        messages:[{role:'user',content:'Requête SQL sur Notion data source collection://312257fa-1555-80c9-8f36-000b46282541 : SELECT MAX("Numéro Devis") as max_num. Retourne le prochain numéro (max+1). Si aucun résultat, retourne 12.'}],
+        mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]
+      })
+    });
+    const data=await res.json();
+    let txt='';
+    for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
+    const clean=txt.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    if(parsed.next_num&&parsed.next_num>0){
+      nextDevisNum=parsed.next_num;
+      document.getElementById('d-num').textContent='N° '+devisNumStr();
+    }
+  }catch(e){console.log('Num auto non disponible, utilisation du num par défaut');}
+}
+
 function doPDF(){
   if(!Object.keys(cart).length){toast('Ajoutez au moins une prestation','err');return;}
   const cn=cli.marque||cli.nom||'Client';
   const ml=mode==='academy'?'Academy':'Studio';
-  const fn=`Devis_CPL_${ml}_${cn.replace(/\s+/g,'_')}_${toISO(now)}.pdf`;
+  const fn=`Devis_${devisNumStr()}_${ml}_${cn.replace(/\s+/g,'_')}.pdf`;
   toast('Génération du PDF…','ok');
-  setStep(2);
-  html2pdf().set({margin:[12,12,12,12],filename:fn,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(document.getElementById('doc')).save().then(()=>{toast(`📁 PDF "${fn}" téléchargé !`,'grn');setStep(3);});
+  html2pdf().set({
+    margin:[10,10,10,10],
+    filename:fn,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  }).from(document.getElementById('doc')).save()
+    .then(()=>toast('📁 PDF "'+fn+'" téléchargé !','grn'));
 }
+
 async function doNotion(){
   const keys=Object.keys(cart);
   if(!keys.length){toast('Ajoutez au moins une prestation','err');return;}
   const btn=document.getElementById('btn-notion');
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Enregistrement…';
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>Enregistrement…';
+  document.getElementById('notion-banner').classList.remove('show');
+
   const cl=cli.marque||cli.nom||'Nouveau client';
   const ml=mode==='academy'?'Academy':'Studio';
   let sub=keys.reduce((s,k)=>s+OFFERS[k].p*cart[k],0);
@@ -349,40 +559,82 @@ async function doNotion(){
   const eng=document.getElementById('s-eng').value;
   const rdur=document.getElementById('s-rdur').value;
   const motif=document.getElementById('i-mot').value;
-  const com=document.getElementById('s-com').value||'Sebastien';
-  const nomDevis=`Devis ${ml} – ${cl} – ${toFR(now)}`;
+  const delai=document.getElementById('i-delai').value;
+  const paiement=document.getElementById('s-paiement').value;
+  const nomDevis=`${devisNumStr()} — Devis ${ml} – ${cl}`;
   const lines=keys.map(k=>`- ${OFFERS[k].n} ×${cart[k]} → ${fmt(OFFERS[k].p*cart[k])}`).join('\n');
+
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Tu crées des entrées Notion. Réponds uniquement en JSON: {"success":true,"message":"ok"}',messages:[{role:'user',content:`Crée dans Notion base "Devis CPL" (collection://312257fa-1555-80c9-8f36-000b46282541):
-Nom du Devis: "${nomDevis}"
-Marque: "${cl}" | Nom Complet: "${cli.nom||cl}" | Commercial: "${com}"
-Status: "Envoyé" | Date édition: ${toISO(now)} | Date réponse: ${toISO(valid30)}
-${eng?`Engagement: "${eng}"`:''}${rp>0?` | Remise: ${rp/100}`:''}${rdur?` | Durée remise: "${rdur}"`:''}${motif?` | Motif: "${motif}"`:''} 
-Prestations:\n${lines}\nTotal HT: ${fmt(fin)}`}],mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        system:'Tu crées des entrées Notion. Réponds UNIQUEMENT en JSON valide: {"success":true,"message":"ok"}',
+        messages:[{role:'user',content:`Crée une nouvelle page dans la base Notion "Devis CPL" (data_source_id: 312257fa-1555-80c9-8f36-000b46282541) avec ces propriétés exactes:
+- Nom du Devis: "${nomDevis}"
+- Marque: "${cl}"
+- Nom Complet: "${cli.nom||cl}"
+- Commercial: "Sebastien"
+- Status: "Envoyé"
+- Date édition devis: ${toISO(now)}
+- Date de réponse: ${toISO(valid30)}
+${eng?'- Engagement: "'+eng+'"':''}
+${rp>0?'- Remise: '+(rp/100):''}
+${rdur?'- Durée de la remise: "'+rdur+'"':''}
+${motif?'- Motif Remise: "'+motif+'"':''}
+
+Prestations:\n${lines}
+Total HT final: ${fmt(fin)}
+Délai d'exécution: ${delai||'Non précisé'}
+Modalités paiement: ${paiement}
+
+Confirme avec success:true.`}],
+        mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]
+      })
+    });
     const data=await res.json();
-    let txt='';for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
+    let txt='';
+    for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
     let parsed={success:false};
     try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(e){}
     if(parsed.success){
       document.getElementById('notion-banner').classList.add('show');
-      toast('✅ Devis enregistré dans Notion !','grn');
-      setStep(4);
-    }else{toast('Erreur Notion — réessayez','err');}
-  }catch(e){toast('Erreur de connexion','err');}
-  btn.disabled=false;btn.innerHTML='Enregistrer dans Notion';
+      toast('✅ Devis '+devisNumStr()+' enregistré dans Notion !','grn');
+      nextDevisNum++;
+      document.getElementById('d-num').textContent='N° '+devisNumStr();
+    }else{
+      toast('Erreur Notion — réessayez','err');
+    }
+  }catch(e){toast('Erreur de connexion','err');console.error(e);}
+  btn.disabled=false;
+  btn.innerHTML='Enregistrer dans Notion';
 }
+
 function resetAll(){
-  cart={};cli={marque:'',nom:'',email:'',tel:'',adresse:''};
+  cart={};
+  cli={marque:'',nom:'',email:'',tel:'',adresse:'',siret:''};
   document.querySelectorAll('select').forEach(s=>s.value='');
   document.querySelectorAll('input:not([type=button]),textarea').forEach(i=>i.value='');
   document.getElementById('nc').style.display='none';
   document.getElementById('d-cn').textContent='—';
   document.getElementById('d-ci').innerHTML='';
+  document.getElementById('sig-client-name').textContent='Client';
   document.getElementById('notion-banner').classList.remove('show');
-  setStep(1);renderOffers('');renderDoc();
+  renderOffers('');renderDoc();
 }
-function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3500);}
-renderOffers('');renderDoc();
+
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Init
+renderOffers('');
+renderDoc();
+fetchNextNum(); // Récupère le vrai prochain numéro depuis Notion au chargement
 </script>
 </body>
 </html>
