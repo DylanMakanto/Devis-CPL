@@ -561,23 +561,9 @@ function renderDoc(){
   ca.innerHTML=`<div class="cond-box">${cp.join(' &nbsp;·&nbsp; ')}</div>`;
 }
 
-async function fetchNextNum(){
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:200,
-        system:'Réponds UNIQUEMENT en JSON: {"next_num":<nombre>}',
-        messages:[{role:'user',content:'Notion MCP — collection://312257fa-1555-80c9-8f36-000b46282541 : SELECT MAX("Numéro Devis") as max_num. Retourne next_num = max+1. Si vide retourne 12.'}],
-        mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]
-      })
-    });
-    const data=await res.json();
-    let txt='';
-    for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
-    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
-    if(parsed.next_num>0){nextNum=parsed.next_num;document.getElementById('d-num').textContent='N° '+numStr();}
-  }catch(e){console.log('num fallback');}
+function fetchNextNum(){
+  // Le numéro est géré par Claude via sendPrompt — valeur par défaut
+  document.getElementById('d-num').textContent='N° '+numStr();
 }
 
 function doPDF(){
@@ -595,13 +581,11 @@ function doPDF(){
     .then(()=>toast('PDF "'+fn+'" téléchargé !','grn'));
 }
 
-async function doNotion(){
+function doNotion(){
   const keys=Object.keys(cart);
   if(!keys.length){toast('Ajoutez au moins une prestation','err');return;}
-  const btn=document.getElementById('btn-notion');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span>Enregistrement…';
-  document.getElementById('notion-banner').classList.remove('show');
-  const cl=cli.marque||cli.nom||'Nouveau client';
+  const cl=cli.marque||cli.nom||'';
+  if(!cl){toast('Sélectionnez un client','err');return;}
   const ml=mode==='academy'?'Academy':'Studio';
   let sub=keys.reduce((s,k)=>s+OFFERS[k].p*cart[k],0);
   const rp=parseFloat(document.getElementById('i-rem').value)||0;
@@ -611,30 +595,33 @@ async function doNotion(){
   const motif=document.getElementById('i-mot').value;
   const delai=document.getElementById('i-delai').value;
   const paiement=document.getElementById('s-paiement').value;
-  const nomDevis=`${numStr()} — Devis ${ml} – ${cl}`;
-  const lines=keys.map(k=>`- ${OFFERS[k].n} x${cart[k]} => ${fmt(OFFERS[k].p*cart[k])}`).join('\n');
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:800,
-        system:'Tu crées des entrées Notion. Réponds UNIQUEMENT en JSON: {"success":true}',
-        messages:[{role:'user',content:`Crée dans "Devis CPL" (312257fa-1555-80c9-8f36-000b46282541):\nNom: "${nomDevis}"\nMarque: "${cl}" | Nom complet: "${cli.nom||cl}" | Commercial: "Sebastien"\nStatus: "Envoyé" | Date: ${toISO(now)} | Réponse: ${toISO(v30)}\n${eng?'Engagement: "'+eng+'"':''} ${rp>0?'Remise: '+(rp/100):''} ${rdur?'Durée: "'+rdur+'"':''} ${motif?'Motif: "'+motif+'"':''}\nPrestations:\n${lines}\nTotal HT: ${fmt(fin)} | Délai: ${delai||'—'} | Paiement: ${paiement}`}],
-        mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]
-      })
-    });
-    const data=await res.json();
-    let txt='';
-    for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
-    let parsed={success:false};
-    try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(e){}
-    if(parsed.success){
-      document.getElementById('notion-banner').classList.add('show');
-      toast('Devis '+numStr()+' enregistré !','grn');
-      nextNum++; document.getElementById('d-num').textContent='N° '+numStr();
-    }else{toast('Erreur Notion — réessayez','err');}
-  }catch(e){toast('Erreur de connexion','err');}
-  btn.disabled=false; btn.innerHTML='Enregistrer dans Notion';
+  const nomDevis=numStr()+' — Devis '+ml+' – '+cl;
+  const lines=keys.map(k=>'• '+OFFERS[k].n+' x'+cart[k]+' = '+fmt(OFFERS[k].p*cart[k])).join(' | ');
+
+  // Construction du message structuré pour Claude
+  const msg='NOTION_SAVE|'+JSON.stringify({
+    nomDevis,
+    marque: cl,
+    nomComplet: cli.nom||cl,
+    email: cli.email||'',
+    tel: cli.tel||'',
+    mode: ml,
+    numDevis: numStr(),
+    dateEdition: toISO(now),
+    dateReponse: toISO(v30),
+    engagement: eng||'',
+    remise: rp>0 ? rp/100 : null,
+    dureeRemise: rdur||'',
+    motifRemise: motif||'',
+    delai: delai||'',
+    paiement,
+    totalHT: fin,
+    prestations: lines,
+    status: 'Envoyé'
+  });
+
+  toast('Envoi vers Notion via Claude…','ok');
+  sendPrompt(msg);
 }
 
 function resetAll(){
