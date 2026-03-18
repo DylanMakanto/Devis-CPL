@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospection — Ca Part En Live !</title>
+<style>
+  :root {
+    --coral-50:#FAECE7;--coral-100:#F5C4B3;--coral-200:#F0997B;--coral-400:#D85A30;--coral-600:#993C1D;--coral-800:#712B13;
+    --amber-50:#FAEEDA;--amber-100:#FAC775;--amber-400:#BA7517;
+    --green-50:#EAF3DE;--green-100:#C0DD97;--green-400:#639922;--green-600:#3B6D11;
+    --red-50:#FCEBEB;--red-400:#E24B4A;--red-600:#A32D2D;
+    --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-200:#B4B2A9;--gray-400:#888780;--gray-600:#5F5E5A;--gray-800:#444441;
+    --blue-50:#E6F1FB;--blue-100:#B5D4F4;--blue-400:#378ADD;--blue-600:#185FA5;--blue-800:#0C447C;
+    --font:'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:#FAFAF8;color:#2C2C2A;min-height:100vh;font-size:14px;line-height:1.5;}
+  .header{background:var(--coral-400);color:white;padding:14px 24px;display:flex;align-items:center;gap:12px;}
+  .header-logo{width:34px;height:34px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--coral-400);flex-shrink:0;}
+  .header h1{font-size:17px;font-weight:600;}
+  .header p{font-size:11px;opacity:.85;}
+  .tabs{display:flex;background:white;border-bottom:1px solid var(--gray-100);padding:0 20px;overflow-x:auto;}
+  .tab-btn{padding:11px 16px;border:none;background:none;font-size:13px;font-weight:500;color:var(--gray-400);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;}
+  .tab-btn.active{color:var(--coral-400);border-bottom-color:var(--coral-400);}
+  .main{padding:16px 20px;max-width:920px;margin:0 auto;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .section-lbl{font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 7px;}
+  .card{background:white;border:1px solid var(--gray-100);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+  .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:540px){.fg{grid-template-columns:1fr;}}
+  .f{display:flex;flex-direction:column;gap:4px;}
+  .f.full{grid-column:1/-1;}
+  .f label{font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;}
+  .f input,.f select,.f textarea{padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font-size:13px;color:#2C2C2A;background:#FAFAF8;font-family:var(--font);width:100%;}
+  .f input:focus,.f select:focus{outline:2px solid var(--coral-100);border-color:var(--coral-400);}
+  .btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+  .bp{background:var(--coral-400);color:white;}.bp:hover{background:var(--coral-600);}
+  .bs{background:white;color:var(--coral-400);border:1px solid var(--coral-200);}.bs:hover{background:var(--coral-50);}
+  .bg{background:white;color:var(--gray-600);border:1px solid var(--gray-100);}.bg:hover{background:var(--gray-50);}
+  .bsm{padding:5px 11px;font-size:12px;border-radius:6px;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+  .badd{background:var(--green-50);color:var(--green-600);border:1px solid var(--green-100);}.badd:hover{background:var(--green-100);}
+  .badded{background:var(--gray-50);color:var(--gray-400);border:1px solid var(--gray-100);cursor:default;}
+  .bdel{background:white;color:var(--red-600);border:1px solid var(--red-600);}.bdel:hover{background:var(--red-50);}
+  .bsave{background:var(--coral-400);color:white;}.bsave:hover{background:var(--coral-600);}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+  /* score */
+  .score-disp{background:white;border:1px solid var(--gray-100);border-radius:12px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .sc-circle{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+  .sc-circle .n{font-size:23px;font-weight:700;}.sc-circle .l{font-size:9px;font-weight:600;letter-spacing:.4px;}
+  .shot{background:var(--green-50);color:var(--green-600);}
+  .swarm{background:var(--amber-50);color:var(--amber-400);}
+  .scold{background:var(--coral-50);color:var(--coral-600);}
+  .sno{background:var(--gray-50);color:var(--gray-400);}
+  .sc-lbl{flex:1;min-width:170px;}
+  .sc-lbl .vd{font-size:15px;font-weight:600;margin-bottom:3px;}
+  .sc-lbl .av{font-size:12px;color:var(--gray-600);}
+  .sc-bars{flex:1;min-width:190px;}
+  .br{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+  .brl{font-size:11px;color:var(--gray-400);width:85px;flex-shrink:0;}
+  .brt{flex:1;height:5px;background:var(--gray-100);border-radius:3px;overflow:hidden;}
+  .brf{height:100%;border-radius:3px;transition:width .4s;background:var(--coral-400);}
+  .brp{font-size:11px;color:var(--gray-600);width:30px;text-align:right;flex-shrink:0;}
+
+  /* stats */
+  .srow{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:7px;margin-bottom:14px;}
+  .sbox{background:white;border:1px solid var(--gray-100);border-radius:9px;padding:10px 10px;text-align:center;}
+  .sbox .sn{font-size:20px;font-weight:700;color:var(--coral-400);}
+  .sbox .sl{font-size:10px;color:var(--gray-400);}
+
+  /* crm */
+  .ctb{display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center;}
+  .ctb input[type=text]{flex:1;min-width:150px;padding:7px 10px;border:1px solid var(--gray-100);border-radius:8px;font-size:13px;background:white;}
+  .ctb select{padding:7px 9px;border:1px solid var(--gray-100);border-radius:8px;font-size:12px;background:white;color:#2C2C2A;}
+  .plist{display:flex;flex-direction:column;gap:6px;}
+  .pcard{background:white;border:1px solid var(--gray-100);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:border-color .15s;}
+  .pcard:hover{border-color:var(--coral-200);}
+  .pcard.exp{border-color:var(--coral-400);}
+  .pav{width:34px;height:34px;border-radius:50%;background:var(--coral-50);color:var(--coral-600);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+  .pi{flex:1;min-width:0;}
+  .pn{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pm{font-size:11px;color:var(--gray-400);margin-top:1px;}
+  .sbadge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+  .s-todo{background:var(--gray-50);color:var(--gray-600);}
+  .s-contacted{background:var(--blue-50);color:var(--blue-600);}
+  .s-rdv{background:var(--amber-50);color:var(--amber-400);}
+  .s-proposal{background:#F0E8FA;color:#7B4FB5;}
+  .s-client{background:var(--green-50);color:var(--green-600);}
+  .s-lost{background:var(--red-50);color:var(--red-600);}
+  .pdet{display:none;padding:9px 0 2px;border-top:1px solid var(--gray-50);margin-top:9px;gap:7px;flex-wrap:wrap;}
+  .pcard.exp .pdet{display:flex;}
+  .df{flex:1;min-width:140px;}
+  .df label{font-size:10px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px;}
+  .df select,.df input,.df textarea{width:100%;padding:6px 8px;border:1px solid var(--gray-100);border-radius:6px;font-size:12px;background:#FAFAF8;color:#2C2C2A;font-family:var(--font);resize:vertical;}
+  .df textarea{min-height:48px;}
+  .dact{width:100%;display:flex;gap:7px;margin-top:3px;}
+  .spill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+  .ph{background:var(--green-50);color:var(--green-600);}
+  .pw{background:var(--amber-50);color:var(--amber-400);}
+  .pc{background:var(--coral-50);color:var(--coral-600);}
+  .pz{background:var(--gray-50);color:var(--gray-400);}
+  .cicon{width:25px;height:25px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--gray-100);background:var(--gray-50);cursor:pointer;flex-shrink:0;text-decoration:none;}
+
+  /* maps */
+  .apibanner{background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;padding:13px 15px;margin-bottom:13px;display:flex;gap:11px;align-items:flex-start;}
+  .apibanner .ico{font-size:17px;flex-shrink:0;}
+  .apibanner h3{font-size:13px;font-weight:600;color:var(--blue-800);margin-bottom:3px;}
+  .apibanner p{font-size:12px;color:var(--blue-600);line-height:1.5;}
+  .apibanner a{color:var(--blue-600);font-weight:600;}
+  .spanel{background:white;border:1px solid var(--gray-100);border-radius:11px;padding:15px;margin-bottom:13px;}
+  .srow2{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;align-items:end;margin-top:12px;}
+  @media(max-width:600px){.srow2{grid-template-columns:1fr 1fr;}.srow2 .btn{grid-column:1/-1;}}
+  .ctags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
+  .ctag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--gray-100);background:white;color:var(--gray-600);cursor:pointer;transition:all .15s;}
+  .ctag.on{background:var(--coral-50);border-color:var(--coral-400);color:var(--coral-600);}
+  .ctag:hover{border-color:var(--coral-200);}
+  .mres{display:flex;flex-direction:column;gap:7px;}
+  .mcard{background:white;border:1px solid var(--gray-100);border-radius:10px;padding:11px 13px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s;}
+  .mcard:hover{border-color:var(--coral-200);}
+  .mci{flex:1;min-width:0;}
+  .mcn{font-weight:600;font-size:13px;margin-bottom:2px;}
+  .mca{font-size:11px;color:var(--gray-400);margin-bottom:4px;}
+  .mcm{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+  .mbadge{font-size:10px;padding:2px 7px;border-radius:12px;font-weight:600;}
+  .mrating{background:var(--amber-50);color:var(--amber-400);}
+  .mopen{background:var(--green-50);color:var(--green-600);}
+  .mclosed{background:var(--red-50);color:var(--red-600);}
+  .msc{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+  .mscore{width:42px;height:42px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .mact{display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0;}
+  .spin{display:inline-block;width:24px;height:24px;border:3px solid var(--gray-100);border-top-color:var(--coral-400);border-radius:50%;animation:rot .7s linear infinite;}
+  @keyframes rot{to{transform:rotate(360deg);}}
+  .loading{text-align:center;padding:30px;color:var(--gray-400);}
+  .empty{text-align:center;padding:36px 20px;color:var(--gray-400);}
+  .empty .ei{font-size:30px;margin-bottom:9px;}
+  .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap;gap:7px;}
+  .rh span{font-size:12px;color:var(--gray-400);}
+  .tip{font-size:11px;color:var(--gray-400);background:var(--gray-50);border-radius:6px;padding:7px 11px;margin-top:8px;line-height:1.5;}
+  .npb{display:flex;justify-content:center;margin-top:9px;}
+
+  /* modal */
+  .mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;}
+  .mov.open{display:flex;}
+  .mo{background:white;border-radius:13px;padding:20px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;}
+  .mo h2{font-size:16px;font-weight:600;margin-bottom:14px;color:var(--coral-400);}
+  .mog{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  @media(max-width:460px){.mog{grid-template-columns:1fr;}}
+  .mof{display:flex;flex-direction:column;gap:3px;}
+  .mof.full{grid-column:1/-1;}
+  .mof label{font-size:10px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;}
+  .mof input,.mof select,.mof textarea{padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font-size:13px;background:#FAFAF8;color:#2C2C2A;font-family:var(--font);}
+  .mof textarea{min-height:58px;resize:vertical;}
+  .moact{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">L</div>
+  <div>
+    <h1>Ca Part En Live !</h1>
+    <p>Outil de prospection commerciale</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="sw('maps')">🗺 Google Maps</button>
+  <button class="tab-btn" onclick="sw('scoring')">Scorer</button>
+  <button class="tab-btn" onclick="sw('crm')">CRM</button>
+</div>
+
+<div class="main">
+
+  <!-- MAPS -->
+  <div id="tab-maps" class="tab-content active">
+    <div class="apibanner" id="apibanner">
+      <div class="ico">🔑</div>
+      <div>
+        <h3>Clé API Google Places requise</h3>
+        <p>Créez la vôtre sur <a href="https://console.cloud.google.com/apis/library/places-backend.googleapis.com" target="_blank">Google Cloud Console</a> → activez "Places API" → collez-la ci-dessous.<br>Google offre ~200 $/mois de crédit gratuit (≈ 6 000 recherches).</p>
+      </div>
+    </div>
+
+    <div class="spanel">
+      <div class="f"><label>Clé API Google Places</label><input type="password" id="apikey" placeholder="AIzaSy..." oninput="onApiKey()" /></div>
+      <div class="section-lbl" style="margin-top:11px;">Catégorie</div>
+      <div class="ctags" id="ctags">
+        <span class="ctag on" data-q="boutique mode vêtements" onclick="selCat(this)">Mode</span>
+        <span class="ctag" data-q="bijouterie accessoires" onclick="selCat(this)">Bijoux</span>
+        <span class="ctag" data-q="cosmétique parfumerie beauté" onclick="selCat(this)">Cosmétique</span>
+        <span class="ctag" data-q="décoration maison boutique" onclick="selCat(this)">Déco / Maison</span>
+        <span class="ctag" data-q="épicerie fine alimentation" onclick="selCat(this)">Épicerie fine</span>
+        <span class="ctag" data-q="librairie papeterie" onclick="selCat(this)">Librairie</span>
+        <span class="ctag" data-q="sport outdoor boutique" onclick="selCat(this)">Sport</span>
+        <span class="ctag" data-q="jeux jouets loisirs" onclick="selCat(this)">Jeux / Loisirs</span>
+        <span class="ctag" data-q="cadeaux boutique" onclick="selCat(this)">Cadeaux</span>
+      </div>
+      <div class="srow2">
+        <div class="f"><label>Ville</label><input type="text" id="city" value="Nancy" /></div>
+        <div class="f"><label>Rayon</label><select id="radius"><option value="1000">1 km</option><option value="2000" selected>2 km</option><option value="5000">5 km</option><option value="10000">10 km</option></select></div>
+        <div class="f"><label>Résultats</label><select id="maxr"><option value="10">10</option><option value="20" selected>20</option></select></div>
+        <button class="btn bp" onclick="doSearch()">Rechercher</button>
+      </div>
+      <div class="tip">Les commerces sont auto-scorés selon votre avatar client. Ajoutez-les au CRM en un clic.</div>
+    </div>
+
+    <div id="resarea">
+      <div class="empty"><div class="ei">🗺</div><p>Saisissez votre clé API et lancez une recherche.</p></div>
+    </div>
+  </div>
+
+  <!-- SCORING -->
+  <div id="tab-scoring" class="tab-content">
+    <div class="section-lbl">Informations du commerce</div>
+    <div class="fg" style="margin-bottom:13px;">
+      <div class="card" style="margin:0"><div class="f"><label>Nom</label><input type="text" id="sc-nom" placeholder="La Boutique de Marie" /></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>Ville</label><input type="text" id="sc-ville" placeholder="Nancy" /></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>Statut</label><select id="sc-statut" onchange="updScore()"><option value="">—</option><option value="indie">Indépendant</option><option value="franchise-solo">Franchise mono-point</option><option value="chain">Chaîne</option></select></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>Emplacement</label><select id="sc-loc" onchange="updScore()"><option value="">—</option><option value="hypercentre">Hypercentre</option><option value="centre">Centre-ville</option><option value="quartier">Quartier animé</option><option value="periph">Périphérie</option></select></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>Gamme de prix</label><select id="sc-prix" onchange="updScore()"><option value="">—</option><option value="10-40">10–40 € dominant</option><option value="mix">Mix 10–40 € + 50 €+</option><option value="50plus">50 €+ dominant</option><option value="low">Moins de 10 €</option><option value="luxe">Luxe +200 €</option></select></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>TikTok</label><select id="sc-tik" onchange="updScore()"><option value="">—</option><option value="actif">Compte actif</option><option value="inactif">Compte inactif</option><option value="non">Pas de compte</option></select></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>Produit montrable en live ?</label><select id="sc-live" onchange="updScore()"><option value="">—</option><option value="oui">Oui — visuel / démo</option><option value="moyen">Partiellement</option><option value="non">Difficile</option></select></div></div>
+      <div class="card" style="margin:0"><div class="f"><label>Contact</label><input type="text" id="sc-contact" placeholder="06... ou @boutique" /></div></div>
+    </div>
+
+    <div class="score-disp">
+      <div class="sc-circle sno" id="sc-circle"><span class="n" id="sc-num">—</span><span class="l">/ 100</span></div>
+      <div class="sc-lbl"><div class="vd" id="sc-vd">Remplissez les critères</div><div class="av" id="sc-av">Le score apparaît ici.</div></div>
+      <div class="sc-bars">
+        <div class="br"><span class="brl">Indépendance</span><div class="brt"><div class="brf" id="b-s" style="width:0%"></div></div><span class="brp" id="p-s">0/20</span></div>
+        <div class="br"><span class="brl">Localisation</span><div class="brt"><div class="brf" id="b-l" style="width:0%"></div></div><span class="brp" id="p-l">0/20</span></div>
+        <div class="br"><span class="brl">Gamme prix</span><div class="brt"><div class="brf" id="b-p" style="width:0%"></div></div><span class="brp" id="p-p">0/25</span></div>
+        <div class="br"><span class="brl">TikTok</span><div class="brt"><div class="brf" id="b-t" style="width:0%"></div></div><span class="brp" id="p-t">0/20</span></div>
+        <div class="br"><span class="brl">Showable</span><div class="brt"><div class="brf" id="b-lv" style="width:0%"></div></div><span class="brp" id="p-lv">0/15</span></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn bp" onclick="addFromScore()">Ajouter au CRM</button>
+      <button class="btn bs" onclick="resetScore()">Réinitialiser</button>
+    </div>
+  </div>
+
+  <!-- CRM -->
+  <div id="tab-crm" class="tab-content">
+    <div class="srow">
+      <div class="sbox"><div class="sn" id="st-tot">0</div><div class="sl">Total</div></div>
+      <div class="sbox"><div class="sn" id="st-hot">0</div><div class="sl">Chauds</div></div>
+      <div class="sbox"><div class="sn" id="st-todo">0</div><div class="sl">À contacter</div></div>
+      <div class="sbox"><div class="sn" id="st-rdv">0</div><div class="sl">RDV</div></div>
+      <div class="sbox"><div class="sn" id="st-cli">0</div><div class="sl">Clients</div></div>
+    </div>
+    <div class="ctb">
+      <input type="text" id="crmq" placeholder="Rechercher..." oninput="renderCRM()" />
+      <select id="crmf" onchange="renderCRM()">
+        <option value="">Tous</option><option value="todo">À contacter</option><option value="contacted">Contacté</option>
+        <option value="rdv">RDV</option><option value="proposal">Proposition</option>
+        <option value="client">Client</option><option value="lost">Perdu</option>
+      </select>
+      <select id="crms" onchange="renderCRM()">
+        <option value="score">Par score</option><option value="date">Par date</option><option value="name">Par nom</option>
+      </select>
+      <button class="btn bp" onclick="openMod()">+ Ajouter</button>
+    </div>
+    <div class="plist" id="plist"><div class="empty"><div class="ei">📋</div><p>Aucun prospect pour l'instant.</p></div></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="mov" id="modov">
+  <div class="mo">
+    <h2>Ajouter un prospect</h2>
+    <div class="mog">
+      <div class="mof"><label>Nom *</label><input type="text" id="m-nom" /></div>
+      <div class="mof"><label>Ville</label><input type="text" id="m-vl" /></div>
+      <div class="mof"><label>Téléphone</label><input type="text" id="m-tel" /></div>
+      <div class="mof"><label>Adresse</label><input type="text" id="m-adr" /></div>
+      <div class="mof"><label>Secteur</label>
+        <select id="m-sec"><option value="">—</option><option value="mode">Mode</option><option value="bijoux">Bijoux</option><option value="cosmetique">Cosmétique</option><option value="deco">Décoration</option><option value="epicerie">Épicerie fine</option><option value="autre">Autre</option></select>
+      </div>
+      <div class="mof"><label>Statut</label>
+        <select id="m-st"><option value="todo">À contacter</option><option value="contacted">Contacté</option><option value="rdv">RDV</option><option value="proposal">Proposition</option><option value="client">Client</option><option value="lost">Perdu</option></select>
+      </div>
+      <div class="mof full"><label>Notes</label><textarea id="m-nt"></textarea></div>
+    </div>
+    <div class="moact">
+      <button class="btn bg" onclick="closeMod()">Annuler</button>
+      <button class="btn bp" onclick="saveMod()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SL = {todo:'À contacter',contacted:'Contacté',rdv:'RDV planifié',proposal:'Proposition',client:'Client',lost:'Perdu'};
+const SC = {todo:'s-todo',contacted:'s-contacted',rdv:'s-rdv',proposal:'s-proposal',client:'s-client',lost:'s-lost'};
+const SECT = {mode:'Mode',bijoux:'Bijoux',cosmetique:'Cosmétique',deco:'Décoration',epicerie:'Épicerie fine',librairie:'Librairie',sport:'Sport',jeux:'Jeux',autre:'Autre'};
+
+let prospects = [];
+let mres = [];
+let addedIds = new Set();
+let catQ = 'boutique mode vêtements';
+let npt = null;
+
+async function load() {
+  try { const r = await window.storage.get('cpel2-pros'); if(r) prospects = JSON.parse(r.value); } catch(e){}
+  try { const r = await window.storage.get('cpel2-key'); if(r){ document.getElementById('apikey').value=r.value; document.getElementById('apibanner').style.display='none'; } } catch(e){}
+  try { const r = await window.storage.get('cpel2-ids'); if(r) addedIds = new Set(JSON.parse(r.value)); } catch(e){}
+  renderCRM();
+}
+
+async function save() {
+  try { await window.storage.set('cpel2-pros', JSON.stringify(prospects)); } catch(e){}
+  try { await window.storage.set('cpel2-ids', JSON.stringify([...addedIds])); } catch(e){}
+}
+
+function sw(t) {
+  ['maps','scoring','crm'].forEach((id,i) => {
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', id===t);
+    document.getElementById('tab-'+id).classList.toggle('active', id===t);
+  });
+  if(t==='crm') renderCRM();
+}
+
+function onApiKey() {
+  const v = document.getElementById('apikey').value.trim();
+  if(v.length > 10) {
+    document.getElementById('apibanner').style.display = 'none';
+    try { window.storage.set('cpel2-key', v); } catch(e){}
+  }
+}
+
+function selCat(el) {
+  document.querySelectorAll('.ctag').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  catQ = el.dataset.q;
+}
+
+async function doSearch() {
+  const key = document.getElementById('apikey').value.trim();
+  if(!key||key.length<10){ alert('Saisissez votre clé API Google Places.'); return; }
+  const city = document.getElementById('city').value.trim()||'Nancy';
+  npt = null;
+  const area = document.getElementById('resarea');
+  area.innerHTML = `<div class="loading"><div class="spin"></div><p style="margin-top:10px">Géolocalisation de "${city}"...</p></div>`;
+  try {
+    const gr = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(city)}&key=${key}`);
+    const gd = await gr.json();
+    if(!gd.results||!gd.results.length){ area.innerHTML=`<div class="empty"><div class="ei">❌</div><p>Ville introuvable.</p></div>`; return; }
+    const loc = gd.results[0].geometry.location;
+    area.innerHTML = `<div class="loading"><div class="spin"></div><p style="margin-top:10px">Recherche en cours...</p></div>`;
+    await fetchP(key, loc.lat, loc.lng, city, false);
+  } catch(e) {
+    area.innerHTML = `<div class="empty"><div class="ei">❌</div><p>Erreur réseau : ${e.message}</p></div>`;
+  }
+}
+
+async function fetchP(key, lat, lng, city, append) {
+  const area = document.getElementById('resarea');
+  const rad = document.getElementById('radius').value;
+  const maxr = parseInt(document.getElementById('maxr').value);
+  let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(catQ)}&location=${lat},${lng}&radius=${rad}&key=${key}&language=fr`;
+  if(npt) url += `&pagetoken=${npt}`;
+
+  const r = await fetch(url);
+  const d = await r.json();
+
+  if(d.status==='REQUEST_DENIED'){
+    area.innerHTML=`<div class="empty"><div class="ei">🔑</div><p>Clé API refusée. Vérifiez que <strong>Places API</strong> est bien activée sur votre projet Google Cloud.<br><small>${d.error_message||''}</small></p></div>`;
+    return;
+  }
+  if(!d.results||!d.results.length){
+    if(!append) area.innerHTML=`<div class="empty"><div class="ei">🔍</div><p>Aucun résultat. Essayez une autre catégorie.</p></div>`;
+    return;
+  }
+
+  npt = d.next_page_token||null;
+  if(!append) mres=[];
+  d.results.slice(0,maxr).forEach(p => mres.push({...p, as: autoScore(p)}));
+  renderMaps(city, append);
+}
+
+function autoScore(p) {
+  let s=0;
+  const chains=['zara','h&m','primark','uniqlo','mango','celio','promod','kiabi','go sport','decathlon','sephora','yves rocher','marionnaud','leclerc','carrefour'];
+  const nm=(p.name||'').toLowerCase();
+  s += chains.some(c=>nm.includes(c)) ? 0 : 20;
+  s += 17;
+  const pl=p.price_level;
+  s += pl===1||pl===2 ? 25 : pl===3 ? 15 : pl==null ? 18 : 5;
+  s += 10;
+  const show=['clothing_store','jewelry_store','beauty_salon','shoe_store','book_store','toy_store','gift_shop','home_goods_store','florist','sporting_goods_store'];
+  s += (p.types||[]).some(t=>show.includes(t)) ? 15 : 7;
+  return Math.min(s,100);
+}
+
+function msStyle(s){ return s>=75?'background:#EAF3DE;color:#3B6D11':s>=50?'background:#FAEEDA;color:#BA7517':s>=25?'background:#FAECE7;color:#993C1D':'background:#F1EFE8;color:#5F5E5A'; }
+
+function renderMaps(city, append) {
+  const area = document.getElementById('resarea');
+  if(!append){
+    area.innerHTML=`<div class="rh"><span><strong>${mres.length}</strong> commerce${mres.length>1?'s':''} à <strong>${city}</strong></span><span>Score estimé — à affiner dans l'onglet Scorer</span></div>`;
+    const list = document.createElement('div'); list.className='mres'; list.id='mlist'; area.appendChild(list);
+  } else {
+    const nb = area.querySelector('.npb'); if(nb) nb.remove();
+  }
+  const list = document.getElementById('mlist');
+  const slice = append ? mres.slice(-Math.min(mres.length, parseInt(document.getElementById('maxr').value))) : mres;
+  slice.forEach(p => {
+    if(append && document.getElementById('mc-'+p.place_id)) return;
+    const isAdded = addedIds.has(p.place_id);
+    const addr = (p.formatted_address||p.vicinity||'').replace(/,\s*France$/,'');
+    const murl = `https://www.google.com/maps/place/?q=place_id:${p.place_id}`;
+    const div = document.createElement('div'); div.className='mcard'; div.id='mc-'+p.place_id;
+    div.innerHTML=`
+      <div class="msc">
+        <div class="mscore" style="${msStyle(p.as)}">${p.as}</div>
+        <span style="font-size:9px;color:var(--gray-400)">/100</span>
+      </div>
+      <div class="mci">
+        <div class="mcn">${p.name}</div>
+        <div class="mca">${addr}</div>
+        <div class="mcm">
+          ${p.rating?`<span class="mbadge mrating">★ ${p.rating.toFixed(1)} (${p.user_ratings_total||'?'})</span>`:''}
+          ${p.opening_hours?.open_now===true?'<span class="mbadge mopen">Ouvert</span>':p.opening_hours?.open_now===false?'<span class="mbadge mclosed">Fermé</span>':''}
+          ${p.price_level?'<span class="mbadge" style="background:var(--gray-50);color:var(--gray-600)">'+'€'.repeat(p.price_level)+'</span>':''}
+        </div>
+      </div>
+      <div class="mact">
+        <button class="bsm ${isAdded?'badded':'badd'}" id="abtn-${p.place_id}" onclick="addMap('${p.place_id}')">${isAdded?'✓ Ajouté':'+ CRM'}</button>
+        <a class="cicon" href="${murl}" target="_blank">🗺</a>
+      </div>`;
+    list.appendChild(div);
+  });
+  if(npt){
+    const nb=document.createElement('div'); nb.className='npb';
+    nb.innerHTML=`<button class="btn bg" onclick="loadMore()">Charger plus</button>`;
+    area.appendChild(nb);
+  }
+}
+
+async function loadMore(){
+  if(!npt)return;
+  const key=document.getElementById('apikey').value.trim();
+  const city=document.getElementById('city').value.trim();
+  const area=document.getElementById('resarea');
+  const nb=area.querySelector('.npb'); if(nb) nb.innerHTML=`<div class="loading" style="padding:10px"><div class="spin"></div></div>`;
+  setTimeout(async()=>{
+    try {
+      const gr=await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(city)}&key=${key}`);
+      const gd=await gr.json();
+      const loc=gd.results[0].geometry.location;
+      await fetchP(key,loc.lat,loc.lng,city,true);
+    } catch(e){}
+  },2100);
+}
+
+function addMap(pid){
+  if(addedIds.has(pid))return;
+  const p=mres.find(r=>r.place_id===pid); if(!p)return;
+  const types=p.types||[];
+  let sec='autre';
+  if(types.some(t=>['clothing_store','shoe_store'].includes(t))) sec='mode';
+  else if(types.includes('jewelry_store')) sec='bijoux';
+  else if(types.some(t=>['beauty_salon','hair_care','spa'].includes(t))) sec='cosmetique';
+  else if(types.some(t=>['home_goods_store','furniture_store'].includes(t))) sec='deco';
+  else if(types.includes('book_store')) sec='librairie';
+  else if(types.includes('sporting_goods_store')) sec='sport';
+  else if(types.some(t=>['toy_store','game_store'].includes(t))) sec='jeux';
+  else if(types.some(t=>['grocery_or_supermarket','food'].includes(t))) sec='epicerie';
+  const addr=p.formatted_address||p.vicinity||'';
+  prospects.unshift({
+    id:Date.now()+Math.random(), nom:p.name,
+    ville:addr.split(',').slice(-3,-1).join(',').trim(),
+    contact:p.formatted_phone_number||'', adresse:addr, secteur:sec,
+    score:p.as, status:'todo',
+    notes:`Source: Google Maps\nAdresse: ${addr}${p.rating?'\nNote: '+p.rating+'/5 ('+p.user_ratings_total+' avis)':''}`,
+    dateAdded:new Date().toLocaleDateString('fr-FR'), nextAction:'',
+    mapsUrl:`https://www.google.com/maps/place/?q=place_id:${pid}`
+  });
+  addedIds.add(pid); save();
+  const btn=document.getElementById('abtn-'+pid);
+  if(btn){btn.textContent='✓ Ajouté';btn.className='bsm badded';}
+}
+
+// Scoring
+function scoreBreak(){
+  const st=document.getElementById('sc-statut').value;
+  const lo=document.getElementById('sc-loc').value;
+  const pr=document.getElementById('sc-prix').value;
+  const ti=document.getElementById('sc-tik').value;
+  const lv=document.getElementById('sc-live').value;
+  const ps={indie:20,'franchise-solo':10,chain:0}[st]||0;
+  const pl={hypercentre:20,centre:17,quartier:10,periph:4}[lo]||0;
+  const pp={'10-40':25,mix:20,'50plus':12,low:5,luxe:3}[pr]||0;
+  const pt={actif:20,inactif:10,non:4}[ti]||0;
+  const pv={oui:15,moyen:8,non:0}[lv]||0;
+  return{ps,pl,pp,pt,pv,tot:ps+pl+pp+pt+pv};
+}
+function updScore(){
+  const b=scoreBreak();
+  document.getElementById('b-s').style.width=(b.ps/20*100)+'%';
+  document.getElementById('b-l').style.width=(b.pl/20*100)+'%';
+  document.getElementById('b-p').style.width=(b.pp/25*100)+'%';
+  document.getElementById('b-t').style.width=(b.pt/20*100)+'%';
+  document.getElementById('b-lv').style.width=(b.pv/15*100)+'%';
+  document.getElementById('p-s').textContent=b.ps+'/20';
+  document.getElementById('p-l').textContent=b.pl+'/20';
+  document.getElementById('p-p').textContent=b.pp+'/25';
+  document.getElementById('p-t').textContent=b.pt+'/20';
+  document.getElementById('p-lv').textContent=b.pv+'/15';
+  const c=document.getElementById('sc-circle');
+  const all=['sc-statut','sc-loc','sc-prix','sc-tik','sc-live'].every(id=>document.getElementById(id).value!=='');
+  if(!all){document.getElementById('sc-num').textContent='—';c.className='sc-circle sno';document.getElementById('sc-vd').textContent='Remplissez les critères';document.getElementById('sc-av').textContent='Le score apparaît dès que tout est rempli.';return;}
+  document.getElementById('sc-num').textContent=b.tot;
+  if(b.tot>=75){c.className='sc-circle shot';document.getElementById('sc-vd').textContent='Prospect chaud';document.getElementById('sc-av').textContent='Excellent fit. À contacter cette semaine.';}
+  else if(b.tot>=50){c.className='sc-circle swarm';document.getElementById('sc-vd').textContent='Prospect tiède';document.getElementById('sc-av').textContent='Bon potentiel. Qualifier avant de pitcher.';}
+  else if(b.tot>=25){c.className='sc-circle scold';document.getElementById('sc-vd').textContent='Prospect froid';document.getElementById('sc-av').textContent='Fit limité. Garder en veille.';}
+  else{c.className='sc-circle sno';document.getElementById('sc-vd').textContent='Peu adapté';document.getElementById('sc-av').textContent='Ne correspond pas à votre avatar.';}
+}
+function addFromScore(){
+  const nom=document.getElementById('sc-nom').value.trim();
+  if(!nom){alert('Saisissez le nom du commerce.');return;}
+  const b=scoreBreak();
+  prospects.unshift({id:Date.now(),nom,ville:document.getElementById('sc-ville').value.trim(),contact:document.getElementById('sc-contact').value.trim(),secteur:'',score:b.tot,status:'todo',notes:'',dateAdded:new Date().toLocaleDateString('fr-FR'),nextAction:''});
+  save(); resetScore(); sw('crm');
+}
+function resetScore(){
+  ['sc-nom','sc-ville','sc-contact'].forEach(id=>document.getElementById(id).value='');
+  ['sc-statut','sc-loc','sc-prix','sc-tik','sc-live'].forEach(id=>document.getElementById(id).value='');
+  updScore();
+}
+
+// CRM
+function renderCRM(){
+  const q=(document.getElementById('crmq').value||'').toLowerCase();
+  const f=document.getElementById('crmf').value;
+  const s=document.getElementById('crms').value;
+  let list=prospects.filter(p=>(p.nom.toLowerCase().includes(q)||(p.ville||'').toLowerCase().includes(q))&&(!f||p.status===f));
+  if(s==='score') list.sort((a,b)=>b.score-a.score);
+  else if(s==='name') list.sort((a,b)=>a.nom.localeCompare(b.nom));
+
+  document.getElementById('st-tot').textContent=prospects.length;
+  document.getElementById('st-hot').textContent=prospects.filter(p=>p.score>=75).length;
+  document.getElementById('st-todo').textContent=prospects.filter(p=>p.status==='todo').length;
+  document.getElementById('st-rdv').textContent=prospects.filter(p=>p.status==='rdv').length;
+  document.getElementById('st-cli').textContent=prospects.filter(p=>p.status==='client').length;
+
+  const pl=document.getElementById('plist');
+  if(!list.length){pl.innerHTML=`<div class="empty"><div class="ei">📋</div><p>${!prospects.length?'Aucun prospect.<br>Lancez une recherche Maps ou ajoutez manuellement.':'Aucun résultat.'}</p></div>`;return;}
+
+  pl.innerHTML=list.map(p=>{
+    const ini=p.nom.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const sc=p.score>0;
+    const sp=p.score>=75?'ph':p.score>=50?'pw':p.score>=25?'pc':'pz';
+    const isPhone=p.contact&&/^[\d\s\+\-\.]{6,}/.test(p.contact.trim());
+    return `
+    <div class="pcard" id="pc-${p.id}" onclick="tog('${p.id}')">
+      <div class="pav">${ini}</div>
+      <div class="pi">
+        <div class="pn">${p.nom}</div>
+        <div class="pm">${[p.ville,SECT[p.secteur]].filter(Boolean).join(' · ')}</div>
+      </div>
+      ${sc?`<span class="spill ${sp}">${p.score} pts</span>`:''}
+      <span class="sbadge ${SC[p.status]}">${SL[p.status]}</span>
+      ${isPhone?`<a class="cicon" href="tel:${p.contact.replace(/\s/g,'')}" onclick="event.stopPropagation()">📞</a>`:''}
+      ${p.mapsUrl?`<a class="cicon" href="${p.mapsUrl}" target="_blank" onclick="event.stopPropagation()">🗺</a>`:''}
+      <div class="pdet" id="pd-${p.id}" onclick="event.stopPropagation()">
+        <div class="df"><label>Statut</label><select id="ds-${p.id}">${Object.entries(SL).map(([v,l])=>`<option value="${v}"${p.status===v?' selected':''}>${l}</option>`).join('')}</select></div>
+        <div class="df"><label>Contact</label><input type="text" id="dc-${p.id}" value="${p.contact||''}" /></div>
+        <div class="df"><label>Prochaine action</label><input type="text" id="da-${p.id}" value="${p.nextAction||''}" placeholder="Ex: Rappeler jeudi" /></div>
+        <div class="df" style="flex:1;min-width:100%"><label>Notes</label><textarea id="dn-${p.id}">${p.notes||''}</textarea></div>
+        <div class="dact">
+          <button class="bsm bsave" onclick="saveC('${p.id}')">Enregistrer</button>
+          <button class="bsm bdel" onclick="delP('${p.id}')">Supprimer</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function tog(id){
+  const c=document.getElementById('pc-'+id), d=document.getElementById('pd-'+id);
+  const was=c.classList.contains('exp');
+  document.querySelectorAll('.pcard').forEach(x=>{x.classList.remove('exp');const dd=x.querySelector('.pdet');if(dd)dd.style.display='none';});
+  if(!was){c.classList.add('exp');d.style.display='flex';}
+}
+function saveC(id){
+  const p=prospects.find(x=>String(x.id)===String(id)); if(!p)return;
+  p.status=document.getElementById('ds-'+id).value;
+  p.contact=document.getElementById('dc-'+id).value;
+  p.nextAction=document.getElementById('da-'+id).value;
+  p.notes=document.getElementById('dn-'+id).value;
+  save(); renderCRM();
+}
+function delP(id){
+  if(!confirm('Supprimer ce prospect ?'))return;
+  prospects=prospects.filter(x=>String(x.id)!==String(id));
+  save(); renderCRM();
+}
+function openMod(){document.getElementById('modov').classList.add('open');}
+function closeMod(){document.getElementById('modov').classList.remove('open');}
+function saveMod(){
+  const n=document.getElementById('m-nom').value.trim(); if(!n){alert('Nom requis.');return;}
+  prospects.unshift({id:Date.now(),nom:n,ville:document.getElementById('m-vl').value.trim(),contact:document.getElementById('m-tel').value.trim(),adresse:document.getElementById('m-adr').value.trim(),secteur:document.getElementById('m-sec').value,score:0,status:document.getElementById('m-st').value,notes:document.getElementById('m-nt').value.trim(),dateAdded:new Date().toLocaleDateString('fr-FR'),nextAction:''});
+  save(); closeMod();
+  ['m-nom','m-vl','m-tel','m-adr','m-nt'].forEach(id=>document.getElementById(id).value='');
+  renderCRM();
+}
+document.getElementById('modov').addEventListener('click',function(e){if(e.target===this)closeMod();});
+load();
+</script>
+</body>
+</html>
