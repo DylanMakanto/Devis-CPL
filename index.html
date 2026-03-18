@@ -596,32 +596,41 @@ function doNotion(){
   const delai=document.getElementById('i-delai').value;
   const paiement=document.getElementById('s-paiement').value;
   const nomDevis=numStr()+' — Devis '+ml+' – '+cl;
-  const lines=keys.map(k=>'• '+OFFERS[k].n+' x'+cart[k]+' = '+fmt(OFFERS[k].p*cart[k])).join(' | ');
+  const lignes=keys.map(k=>'  - '+OFFERS[k].n+' x'+cart[k]+' = '+fmt(OFFERS[k].p*cart[k])).join('\n');
 
-  // Construction du message structuré pour Claude
-  const msg='NOTION_SAVE|'+JSON.stringify({
-    nomDevis,
-    marque: cl,
-    nomComplet: cli.nom||cl,
-    email: cli.email||'',
-    tel: cli.tel||'',
-    mode: ml,
-    numDevis: numStr(),
-    dateEdition: toISO(now),
-    dateReponse: toISO(v30),
-    engagement: eng||'',
-    remise: rp>0 ? rp/100 : null,
-    dureeRemise: rdur||'',
-    motifRemise: motif||'',
-    delai: delai||'',
-    paiement,
-    totalHT: fin,
-    prestations: lines,
-    status: 'Envoyé'
-  });
+  const recap =
+'📋 ENREGISTRER DANS NOTION\n'+
+'================================\n'+
+'Devis       : '+nomDevis+'\n'+
+'Client      : '+cl+(cli.nom&&cli.marque?' ('+cli.nom+')':'')+'\n'+
+'Email       : '+(cli.email||'—')+'\n'+
+'Téléphone   : '+(cli.tel||'—')+'\n'+
+'Mode        : '+ml+'\n'+
+'Date        : '+toFR(now)+'\n'+
+'Validité    : '+toFR(v30)+'\n'+
+(eng?'Engagement  : '+eng+'\n':'')+
+(rp>0?'Remise      : '+rp+'%'+(rdur?' ('+rdur+')':'')+'\n':'')+
+(motif?'Motif remise: '+motif+'\n':'')+
+(delai?'Délai exec. : '+delai+'\n':'')+
+'Paiement    : '+paiement+'\n'+
+'================================\n'+
+'Prestations :\n'+lignes+'\n'+
+'================================\n'+
+'Total HT    : '+fmt(fin)+'\n'+
+'================================\n'+
+'👉 Copie ce texte et colle-le dans Claude pour enregistrer dans Notion.';
 
-  toast('Envoi vers Notion via Claude…','ok');
-  sendPrompt(msg);
+  // Afficher le modal
+  document.getElementById('modal-text').value=recap;
+  document.getElementById('notion-modal').style.display='flex';
+}
+
+function copyAndClose(){
+  const txt=document.getElementById('modal-text');
+  txt.select();
+  document.execCommand('copy');
+  document.getElementById('notion-modal').style.display='none';
+  toast('Texte copié ! Colle-le dans Claude ↗','grn');
 }
 
 function resetAll(){
@@ -644,5 +653,29 @@ function toast(msg,type='ok'){
 
 renderOffers(''); renderDoc(); fetchNextNum();
 </script>
+
+<!-- MODAL NOTION -->
+<div id="notion-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:8px;padding:24px;max-width:520px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="width:36px;height:36px;background:#E7176A;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📋</div>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;text-transform:uppercase;color:#1A1A1A">Enregistrer dans Notion</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:1px">Copie ce résumé et colle-le dans Claude</div>
+      </div>
+    </div>
+    <textarea id="modal-text" readonly style="width:100%;height:220px;font-family:monospace;font-size:11px;border:1px solid #E2E5EA;border-radius:5px;padding:10px;resize:none;color:#374151;background:#F8F9FB;outline:none;line-height:1.6"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="copyAndClose()" style="flex:1;background:#E7176A;color:#fff;border:none;padding:11px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.06em">📋 Copier &amp; Fermer</button>
+      <button onclick="document.getElementById('notion-modal').style.display='none'" style="padding:11px 16px;background:transparent;border:1px solid #D1D5DB;border-radius:5px;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif;color:#6B7280;text-transform:uppercase;letter-spacing:.06em">Annuler</button>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:#FFF5F8;border-left:3px solid #E7176A;border-radius:0 4px 4px 0;font-size:11px;color:#6B7280;line-height:1.6">
+      <strong style="color:#E7176A">Comment faire :</strong><br>
+      1. Clique <strong>Copier &amp; Fermer</strong><br>
+      2. Ouvre <strong>ce chat Claude</strong> dans un onglet<br>
+      3. <strong>Colle</strong> (Ctrl+V) et envoie — Claude enregistre dans Notion instantanément ✅
+    </div>
+  </div>
+</div>
 </body>
 </html>
