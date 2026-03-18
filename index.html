@@ -598,39 +598,32 @@ function doNotion(){
   const nomDevis=numStr()+' — Devis '+ml+' – '+cl;
   const lignes=keys.map(k=>'  - '+OFFERS[k].n+' x'+cart[k]+' = '+fmt(OFFERS[k].p*cart[k])).join('\n');
 
-  const recap =
-'📋 ENREGISTRER DANS NOTION\n'+
-'================================\n'+
-'Devis       : '+nomDevis+'\n'+
-'Client      : '+cl+(cli.nom&&cli.marque?' ('+cli.nom+')':'')+'\n'+
-'Email       : '+(cli.email||'—')+'\n'+
-'Téléphone   : '+(cli.tel||'—')+'\n'+
-'Mode        : '+ml+'\n'+
-'Date        : '+toFR(now)+'\n'+
-'Validité    : '+toFR(v30)+'\n'+
-(eng?'Engagement  : '+eng+'\n':'')+
-(rp>0?'Remise      : '+rp+'%'+(rdur?' ('+rdur+')':'')+'\n':'')+
-(motif?'Motif remise: '+motif+'\n':'')+
-(delai?'Délai exec. : '+delai+'\n':'')+
-'Paiement    : '+paiement+'\n'+
-'================================\n'+
-'Prestations :\n'+lignes+'\n'+
-'================================\n'+
-'Total HT    : '+fmt(fin)+'\n'+
-'================================\n'+
-'👉 Copie ce texte et colle-le dans Claude pour enregistrer dans Notion.';
+  // Construire le message à envoyer à Claude
+  const msg = [
+    'NOTION_DEVIS_CPL',
+    'Nom: '+nomDevis,
+    'Client: '+cl+(cli.nom&&cli.marque?' ('+cli.nom+')':''),
+    'Email: '+(cli.email||''),
+    'Tel: '+(cli.tel||''),
+    'Adresse: '+(cli.adresse||''),
+    'Mode: '+ml,
+    'Num: '+numStr(),
+    'Date: '+toISO(now),
+    'Validite: '+toISO(v30),
+    'Engagement: '+(eng||''),
+    'Remise: '+(rp>0?rp+'%':''),
+    'DureeRemise: '+(rdur||''),
+    'MotifRemise: '+(motif||''),
+    'Delai: '+(delai||''),
+    'Paiement: '+paiement,
+    'TotalHT: '+fin.toFixed(2),
+    'Prestations: '+lignes
+  ].join('|§|');
 
-  // Afficher le modal
-  document.getElementById('modal-text').value=recap;
-  document.getElementById('notion-modal').style.display='flex';
-}
-
-function copyAndClose(){
-  const txt=document.getElementById('modal-text');
-  txt.select();
-  document.execCommand('copy');
-  document.getElementById('notion-modal').style.display='none';
-  toast('Texte copié ! Colle-le dans Claude ↗','grn');
+  // Encoder et ouvrir Claude avec le message pré-rempli
+  const claudeUrl = 'https://claude.ai/new?q=' + encodeURIComponent(msg);
+  window.open(claudeUrl, '_blank');
+  toast('Ouverture de Claude…','grn');
 }
 
 function resetAll(){
