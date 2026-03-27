@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Générateur de Devis — Ça Part En Live !</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--cpl-black:#111111;--cpl-pink:#FF2D78;--cpl-pink-h:#e01e66;--cpl-pink-bg:#FFF0F5;--cpl-pink-border:#FFBAD4;--cpl-border:#E5E5E5;--bg:#F7F7F7;--white:#fff;--text:#111;--muted:#888;--light:#F4F4F4;
+--ac:var(--cpl-pink);--ac-h:var(--cpl-pink-h);--ac-bg:var(--cpl-pink-bg);--ac-border:var(--cpl-pink-border);--doc-bar1:#111111;--doc-bar2:#FF2D78}
+body.studio-theme{--ac:#C8830A;--ac-h:#a86b06;--ac-bg:#FFF8EC;--ac-border:#F5D48A;--doc-bar1:#7c4a00;--doc-bar2:#C8830A}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+.app{display:grid;grid-template-columns:370px 1fr;height:100vh;overflow:hidden;background:var(--white);box-shadow:0 2px 20px rgba(0,0,0,0.08)}
+/* LEFT PANEL */
+.lp{display:flex;flex-direction:column;border-right:1px solid var(--cpl-border);height:100vh}
+.lp-head{background:var(--cpl-black);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lp-logo-line1{color:white;font-size:16px;font-weight:800;letter-spacing:-0.4px;line-height:1}
+.lp-logo-line1 span{color:var(--cpl-pink)}
+.lp-logo-line2{color:#666;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
+.lp-badge{background:var(--ac);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.mode-bar{display:flex;border-bottom:1px solid var(--cpl-border);flex-shrink:0}
+.mode-btn{flex:1;padding:10px 0;font-size:12px;font-weight:600;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--muted);border-bottom:2.5px solid transparent;transition:all 0.15s}
+.mode-btn.on{color:var(--ac);border-bottom-color:var(--ac);background:var(--ac-bg)}
+.lp-badge{background:var(--ac);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.lp-body{flex:1;overflow-y:auto;padding:14px 16px}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:0.04em}
+.fg{margin-bottom:11px}
+.fg input,.fg select,.fg textarea{width:100%;padding:8px 10px;border:1px solid var(--cpl-border);border-radius:6px;font-family:inherit;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border 0.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ac)}
+.fg textarea{height:52px;resize:none}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sep{font-size:10px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:0.08em;margin:14px 0 9px;padding-bottom:5px;border-bottom:2px solid var(--ac-bg);display:flex;align-items:center;gap:6px}
+.olist{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow-y:auto;margin-top:6px}
+.ocard{padding:8px 10px;border:1px solid var(--cpl-border);border-radius:7px;cursor:pointer;transition:all 0.1s;display:flex;align-items:flex-start;gap:8px}
+.ocard:hover{border-color:var(--ac-border);background:var(--ac-bg)}
+.ocard.on{background:var(--ac-bg);border-color:var(--ac)}
+.ocard-body{flex:1;min-width:0}
+.ocard-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ocard-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ocard-price{font-size:12px;font-weight:700;color:var(--ac);white-space:nowrap}
+.tag{font-size:9px;padding:2px 5px;border-radius:10px;font-weight:700;display:inline-block;margin-top:3px}
+.ta{background:#EDE9FE;color:#5B21B6}.ts{background:#DBEAFE;color:#1E40AF}.tu{background:#D1FAE5;color:#065F46}.td{background:#FEF3C7;color:#92400E}
+/* RIGHT PANEL */
+.rp{display:flex;flex-direction:column;height:100vh;background:#F8F8F8}
+.preview-wrap{flex:1;overflow-y:auto;padding:24px}
+/* DOCUMENT */
+.doc{max-width:620px;margin:0 auto;background:var(--white);border-radius:10px;box-shadow:0 1px 12px rgba(0,0,0,0.07);overflow:hidden}
+.doc-header-bar{height:6px;background:linear-gradient(90deg,var(--doc-bar1) 0%,var(--doc-bar2) 100%)}
+.doc-inner{padding:24px 28px}
+.doc-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid var(--cpl-black);margin-bottom:18px}
+.brand-name{font-size:22px;font-weight:900;color:var(--cpl-black);letter-spacing:-0.8px;line-height:1}
+.brand-name span{color:var(--ac)}
+.brand-mcn{font-size:9px;color:#bbb;letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+.brand-mode{font-size:10px;font-weight:700;color:var(--ac);background:var(--ac-bg);padding:2px 9px;border-radius:4px;display:inline-block;margin-top:5px;border:1px solid var(--ac-border)}
+.doc-right{text-align:right}
+.doc-num{font-size:18px;font-weight:900;color:var(--cpl-black)}
+.doc-sub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.7}
+.doc-parties{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.party{padding:11px 13px;border-radius:7px;border-left:4px solid var(--cpl-black)}
+.party.emit{background:#F7F7F7}
+.party.cli{border-left-color:var(--ac);background:var(--ac-bg)}
+.party-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#bbb;margin-bottom:5px}
+.party-name{font-size:13px;font-weight:700;color:var(--cpl-black)}
+.party-info{font-size:11px;color:#666;margin-top:3px;line-height:1.55}
+table.lt{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+table.lt thead tr{background:var(--cpl-black)}
+table.lt thead th{color:white;padding:8px 10px;font-weight:600;font-size:11px;text-align:left}
+table.lt thead th:nth-child(2),table.lt thead th:nth-child(3),table.lt thead th:nth-child(4){text-align:right}
+table.lt tbody tr{border-bottom:1px solid var(--cpl-border)}
+table.lt tbody tr:nth-child(even){background:#FAFAFA}
+table.lt td{padding:7px 10px;vertical-align:middle}
+table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-align:right}
+.qin{width:36px;text-align:center;font-size:11px;padding:3px;font-family:inherit;border:1px solid var(--cpl-border);border-radius:4px;outline:none}
+.qin:focus{border-color:var(--ac)}
+.rmv{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 4px;font-family:inherit;margin-left:4px}
+.rmv:hover{color:var(--ac)}
+.totals-wrap{display:flex;justify-content:flex-end;margin-bottom:14px}
+.totals-box{width:220px;font-size:12px}
+.trow{display:flex;justify-content:space-between;padding:4px 0;color:#777;border-bottom:1px solid var(--cpl-border)}
+.trow.disc{color:var(--ac);font-weight:600}
+.trow.final{font-size:15px;font-weight:900;color:var(--cpl-black);padding:8px 0;border-top:2.5px solid var(--cpl-black);margin-top:3px;border-bottom:none}
+.tva-note{font-size:9px;color:#ccc;text-align:right;margin-top:5px}
+.cond-box{font-size:11px;color:#777;padding:10px 12px;background:#F9F9F9;border-radius:6px;border-left:3px solid var(--ac);line-height:1.65}
+.doc-foot{margin-top:16px;text-align:center;font-size:9px;color:#ccc;padding-top:10px;border-top:1px solid var(--cpl-border)}
+.doc-empty{text-align:center;padding:36px 20px;color:#ccc;font-size:13px}
+.doc-empty-icon{font-size:32px;margin-bottom:8px}
+/* ACTION BAR */
+.abar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--cpl-border);background:var(--white);flex-shrink:0}
+.btn-blk{flex:1;background:var(--cpl-black);color:white;border:none;padding:11px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.btn-blk:hover{background:#2a2a2a}
+.btn-pk{flex:1;background:var(--ac);color:white;border:none;padding:11px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.btn-pk:hover{background:var(--ac-h)}
+.btn-pk:disabled{background:#e0b0c0;cursor:not-allowed}
+.btn-mail{flex:1;background:var(--cpl-black);color:white;border:none;padding:11px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.btn-mail:hover{background:#2a2a2a}
+.btn-out{padding:11px 14px;background:transparent;border:1px solid var(--cpl-border);border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--muted);transition:background 0.15s}
+.btn-out:hover{background:var(--light)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:sp 0.6s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;white-space:nowrap;color:white;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+.toast.ok{background:var(--cpl-black)}
+.toast.err{background:#c0392b}
+.toast.grn{background:#27ae60}
+.toast.show{opacity:1}
+/* NOTION BANNER */
+.notion-banner{display:none;align-items:center;gap:8px;font-size:12px;color:#065F46;background:#D1FAE5;padding:8px 16px;border-top:1px solid #A7F3D0;flex-shrink:0}
+.notion-banner a{color:#065F46;font-weight:700;text-decoration:underline}
+.notion-banner.show{display:flex}
+/* WORKFLOW BADGE */
+.workflow-steps{display:flex;gap:6px;padding:10px 16px;background:var(--cpl-black);flex-shrink:0}
+.ws{display:flex;align-items:center;gap:5px;font-size:10px;color:#666;flex:1;justify-content:center}
+.ws.active{color:var(--ac)}
+.ws-num{width:18px;height:18px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#555;flex-shrink:0}
+.ws.active .ws-num{background:var(--ac);color:white}
+.ws-label{font-size:10px;white-space:nowrap}
+/* PODCAST PARAMS */
+.pod-params{display:none;background:var(--ac-bg);border:1px solid var(--ac-border);border-radius:6px;padding:10px;margin-top:6px;gap:6px;flex-wrap:wrap}
+.pod-params.open{display:flex}
+.pod-params label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px}
+.pod-params input,.pod-params select{width:100%;padding:5px 7px;border:1px solid var(--cpl-border);border-radius:5px;font-size:12px;font-family:inherit;background:white;outline:none}
+.pod-params input:focus,.pod-params select:focus{border-color:var(--ac)}
+.pod-col{flex:1;min-width:80px}
+/* SUR MESURE */
+.sm-zone{display:none;background:#FFFBF2;border:1.5px dashed var(--ac);border-radius:7px;padding:10px;margin-top:4px;overflow:visible}
+.sm-zone.open{display:block}
+.sm-zone input{width:100%;padding:7px 9px;border:1px solid var(--cpl-border);border-radius:5px;font-size:12px;font-family:inherit;outline:none;background:white}
+.sm-zone input:focus{border-color:var(--ac)}
+.sm-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.sm-line{margin-bottom:4px}
+.sm-add-btn{display:block;width:100%;margin-top:10px;padding:8px;background:none;border:1.5px dashed var(--ac);border-radius:6px;color:var(--ac);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center}
+.sm-add-btn:hover{background:var(--ac-bg)}
+/* OLIST expanded */
+.olist{display:flex;flex-direction:column;gap:4px;max-height:none;overflow-y:visible;margin-top:6px}
+.ogrp-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:10px 0 5px;padding-bottom:4px;border-bottom:1px solid var(--cpl-border)}
+/* MODAL MAIL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:white;border-radius:12px;padding:28px;width:520px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:800;color:var(--cpl-black);margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.mfg{margin-bottom:12px}
+.mfg label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em}
+.mfg input,.mfg textarea,.mfg select{width:100%;padding:8px 10px;border:1px solid var(--cpl-border);border-radius:6px;font-family:inherit;font-size:13px;outline:none;transition:border 0.15s}
+.mfg input:focus,.mfg textarea:focus{border-color:var(--ac)}
+.mfg textarea{height:180px;resize:none;line-height:1.65}
+.mfg .ro{background:#f5f5f5;color:#888;cursor:default}
+.mail-pj-note{font-size:11px;color:#666;background:#FFF8EC;border:1px solid #F5D48A;border-radius:6px;padding:9px 12px;margin:12px 0;line-height:1.7}
+.mail-pj-note strong{color:var(--cpl-black);display:block;margin-bottom:3px}
+.mail-btn-row{display:flex;gap:8px;margin-top:14px}
+.mail-send{flex:1;background:var(--ac);color:white;border:none;padding:11px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s}
+.mail-send:hover{background:var(--ac-h)}
+.mail-cancel{padding:11px 16px;background:none;border:1px solid var(--cpl-border);border-radius:7px;font-size:13px;cursor:pointer;color:var(--muted)}
+@media print{.lp,.abar,.workflow-steps,.notion-banner{display:none!important}.rp{height:auto}.preview-wrap{padding:0}.doc{box-shadow:none;border-radius:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT -->
+  <div class="lp">
+    <div class="lp-head">
+      <div>
+        <div class="lp-logo-line1">ÇA PART <span>EN LIVE</span> !</div>
+        <div class="lp-logo-line2">MultiChannel Network</div>
+      </div>
+      <div class="lp-badge">Générateur de devis</div>
+    </div>
+    <div class="mode-bar">
+      <button class="mode-btn on" id="btn-a" onclick="setMode('academy')">🎓 Academy</button>
+      <button class="mode-btn" id="btn-s" onclick="setMode('studio')">🎬 Studio</button>
+    </div>
+    <div class="lp-body">
+      <div class="sep">👤 Client</div>
+      <div class="fg">
+        <label class="lbl">Client existant</label>
+        <select onchange="pickClient(this.value)">
+          <option value="">— Sélectionner —</option>
+          <option value="new">+ Nouveau client</option>
+          <option value="MENCIA||06 59 38 86 46|">MENCIA — Souria Chadli</option>
+          <option value="TYPANIA|Christophe Gabriel|0614698704|Christophe.gabriel@typania.fr">TYPANIA — Christophe Gabriel</option>
+          <option value="La Ferme de Loro|Damien Colin|0609301626|damien.colin@loro.fr">La Ferme de Loro — Damien Colin</option>
+          <option value="By CracoTTe|Johanne Douard|0662051691|douardjohanne@gmail.com">By CracoTTe — Johanne Douard</option>
+          <option value="SANODO|Koumba Sarr|0666723574|coumbaguisse23@gmail.com">SANODO — Koumba Sarr</option>
+          <option value="L'Associé Immobilier|Laurine Chaves|0676585233|ophelie@lassocierimmobilier.fr">L'Associé Immobilier — Laurine Chaves</option>
+          <option value="SMOYO|Mohamed Marrakchi|06 48 94 30 09|marrakchiconseils@gmail.com">SMOYO — Mohamed Marrakchi</option>
+          <option value="Marché aux Affaires|Murad Saut|06 67 66 50 51|mpm39000@gmail.com">Marché aux Affaires — Murad Saut</option>
+          <option value="My Burger|Murat Ercker|0778145664|myburger.forbach@gmail.com">My Burger — Murat Ercker</option>
+          <option value="SPARK I&R|Nacera Mekhaberche|07 77 93 18 67|o.bauwens@spark-ir.com">SPARK I&R — Nacera Mekhaberche</option>
+          <option value="Les Bonbiches de Vanilles|Vanélia|06 40 70 33 46|lesbonbichesdevanilles@gmail.com">Les Bonbiches de Vanilles — Vanélia</option>
+        </select>
+      </div>
+      <div id="nc" style="display:none">
+        <div class="r2">
+          <div class="fg"><label class="lbl">Marque / Société</label><input id="nc-m" type="text" placeholder="Nom de marque" oninput="syncNC()"/></div>
+          <div class="fg"><label class="lbl">Nom complet</label><input id="nc-n" type="text" placeholder="Prénom Nom" oninput="syncNC()"/></div>
+        </div>
+        <div class="r2">
+          <div class="fg"><label class="lbl">Email</label><input id="nc-e" type="email" placeholder="email@..." oninput="syncNC()"/></div>
+          <div class="fg"><label class="lbl">Téléphone</label><input id="nc-t" type="tel" placeholder="06..." oninput="syncNC()"/></div>
+        </div>
+        <div class="fg"><label class="lbl">Adresse</label><input id="nc-a" type="text" placeholder="Adresse complète" oninput="syncNC()"/></div>
+      </div>
+      <div class="sep">📋 Conditions</div>
+      <div class="r2">
+        <div class="fg"><label class="lbl">Engagement</label>
+          <select id="s-eng" onchange="renderDoc()">
+            <option value="">— —</option><option>3 Mois</option><option>6 Mois</option><option>12 Mois</option>
+          </select>
+        </div>
+        <div class="fg"><label class="lbl">Commercial</label>
+          <select id="s-com" onchange="renderDoc()"><option>Sebastien</option></select>
+        </div>
+      </div>
+      <div class="r3">
+        <div class="fg"><label class="lbl">Remise (%)</label><input id="i-rem" type="number" min="0" max="100" placeholder="0" oninput="renderDoc()"/></div>
+        <div class="fg"><label class="lbl">Durée</label>
+          <select id="s-rdur" onchange="renderDoc()">
+            <option value="">—</option><option>1 Mois</option><option>2 Mois</option><option>3 Mois</option><option>4 Mois</option>
+          </select>
+        </div>
+        <div class="fg"><label class="lbl">Motif</label><input id="i-mot" type="text" placeholder="..." oninput="renderDoc()"/></div>
+      </div>
+      <div class="fg"><label class="lbl">Note / conditions</label><textarea id="i-note" placeholder="Conditions particulières, délais de paiement..."></textarea></div>
+      <div class="sep">🛒 Prestations</div>
+      <div class="fg"><input type="text" id="srch" placeholder="🔍  Rechercher une prestation..." oninput="renderOffers(this.value)"/></div>
+      <div id="catalogue-loader" style="display:none;align-items:center;gap:8px;padding:12px 0;color:var(--muted);font-size:12px"><span class="spin" style="border-color:rgba(0,0,0,0.15);border-top-color:var(--ac)"></span>Chargement du catalogue Notion…</div>
+      <div class="olist" id="olist"></div>
+    </div>
+  </div>
+  <!-- RIGHT -->
+  <div class="rp">
+    <div class="workflow-steps">
+      <div class="ws active" id="ws1"><div class="ws-num">1</div><div class="ws-label">Configurer</div></div>
+      <div style="color:#333;display:flex;align-items:center;font-size:10px">›</div>
+      <div class="ws" id="ws2"><div class="ws-num">2</div><div class="ws-label">Exporter PDF</div></div>
+      <div style="color:#333;display:flex;align-items:center;font-size:10px">›</div>
+      <div class="ws" id="ws3"><div class="ws-num">3</div><div class="ws-label">Envoyer client</div></div>
+      <div style="color:#333;display:flex;align-items:center;font-size:10px">›</div>
+      <div class="ws" id="ws4"><div class="ws-num">4</div><div class="ws-label">Sauver Notion</div></div>
+    </div>
+    <div class="preview-wrap">
+      <div class="doc" id="doc">
+        <div class="doc-header-bar"></div>
+        <div class="doc-inner">
+          <div class="doc-top">
+            <div>
+              <div class="brand-name">ÇA PART <span>EN LIVE</span> !</div>
+              <div class="brand-mcn">MultiChannel Network</div>
+              <div class="brand-mode" id="d-mode">🎓 Academy</div>
+            </div>
+            <div class="doc-right">
+              <div class="doc-num" id="d-num">DEVIS</div>
+              <div class="doc-sub" id="d-dates"></div>
+            </div>
+          </div>
+          <div class="doc-parties">
+            <div class="party emit">
+              <div class="party-lbl">Émetteur</div>
+              <div class="party-name">Ça Part En Live !</div>
+              <div class="party-info">MultiChannel Network<br><span id="d-com">Sebastien</span></div>
+            </div>
+            <div class="party cli">
+              <div class="party-lbl">Client</div>
+              <div class="party-name" id="d-cn">—</div>
+              <div class="party-info" id="d-ci"></div>
+            </div>
+          </div>
+          <div id="d-lines"><div class="doc-empty"><div class="doc-empty-icon">📄</div>Sélectionnez des prestations<br>dans le panneau de gauche</div></div>
+          <div id="d-totals"></div>
+          <div id="d-cond"></div>
+          <div class="doc-foot">Ça Part En Live ! — MultiChannel Network &nbsp;|&nbsp; Généré le <span id="d-today"></span> &nbsp;|&nbsp; Exonéré de TVA — Art. 293B CGI</div>
+        </div>
+      </div>
+    </div>
+    <div class="notion-banner" id="notion-banner">
+      ✅ Devis enregistré dans Notion ! &nbsp;<a href="https://notion.so/312257fa155580349d62c2230c568f94" target="_blank" rel="noopener">Ouvrir la page Devis CPL →</a>
+      &nbsp;&nbsp;N'oubliez pas d'uploader le PDF dans la fiche.
+    </div>
+    <div class="abar">
+      <button class="btn-out" onclick="resetAll()">↺ Réinitialiser</button>
+      <button class="btn-mail" onclick="openMail()">✉️ Envoyer</button>
+      <button class="btn-blk" onclick="doPDF()" id="btn-pdf">⬇ Exporter PDF</button>
+      <button class="btn-pk" onclick="doNotion()" id="btn-notion">Enregistrer dans Notion</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="mail-modal">
+  <div class="modal-box">
+    <div class="modal-title">✉️ Envoyer le devis par mail</div>
+    <div class="modal-sub">S'ouvrira dans votre client mail (Outlook, Thunderbird, Mail…)</div>
+    <div class="mfg"><label>Destinataire *</label><input id="m-to" type="email" placeholder="client@exemple.fr"></div>
+    <div class="mfg"><label>Objet</label><input id="m-subject" class="ro" readonly></div>
+    <div class="mfg"><label>Corps du mail</label><textarea id="m-body"></textarea></div>
+    <div class="mail-pj-note"><strong>📎 Pièces jointes à ajouter manuellement :</strong>1. Plaquette de présentation CPL (PDF)<br>2. Devis PDF — utilisez "Exporter PDF" puis joindre le fichier téléchargé</div>
+    <div class="mail-btn-row">
+      <button class="mail-cancel" onclick="closeMail()">Annuler</button>
+      <button class="mail-send" onclick="sendMail()">Ouvrir dans mon client mail →</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// ── CATALOGUE — chargé dynamiquement depuis Notion ──
+let OFFERS=[];
+
+// Mots-clés pour détecter les types spéciaux depuis le nom de l'offre
+const PODCAST_KEYWORDS=['podcast'];
+const SURMESURE_KEYWORDS=['sur mesure','sur-mesure'];
+const QTE_KEYWORDS=["à l'unité","a l'unité","à l'unite","unité","— unité"];
+
+function classifyOffer(nom,desc){
+  const n=(nom||'').toLowerCase();
+  const d=(desc||'').toLowerCase();
+  if(SURMESURE_KEYWORDS.some(k=>n.includes(k))) return {surMesure:true};
+  if(PODCAST_KEYWORDS.some(k=>n.includes(k))) return {podcast:true};
+  if(QTE_KEYWORDS.some(k=>n.includes(k))) return {qteEnabled:true};
+  return {};
+}
+
+// Groupes fixes par Type — l'ordre et les icônes restent stables
+const GROUPS=[
+  {label:'🎓 Academy',types:['Academy']},
+  {label:'📦 Packs Studio',types:['Studio'],excludeKeywords:[...PODCAST_KEYWORDS,...SURMESURE_KEYWORDS,...QTE_KEYWORDS]},
+  {label:'🎙 Podcast',types:['Studio'],includeKeywords:PODCAST_KEYWORDS},
+  {label:'🎬 Captation — à l\'unité',types:['Studio'],includeKeywords:QTE_KEYWORDS},
+  {label:'✨ Sur mesure',types:['Studio'],includeKeywords:SURMESURE_KEYWORDS},
+  {label:'⚡ Upsell',types:['Upsell']},
+  {label:'🚗 Déplacement',types:['Déplacement']},
+];
+
+// Filtre les offres pour un groupe donné
+function offersForGroup(grp){
+  return OFFERS.filter(o=>{
+    if(!grp.types.includes(o.t)) return false;
+    const n=o.n.toLowerCase();
+    if(grp.includeKeywords) return grp.includeKeywords.some(k=>n.includes(k));
+    if(grp.excludeKeywords) return !grp.excludeKeywords.some(k=>n.includes(k));
+    return true;
+  });
+}
+
+async function loadCatalogueFromNotion(){
+  const loaderEl=document.getElementById('catalogue-loader');
+  if(loaderEl) loaderEl.style.display='flex';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:4000,
+      system:`Tu interroges Notion et retournes UNIQUEMENT un JSON valide, sans markdown, sans explication.
+Format attendu: {"offers":[{"n":"nom","t":"type","p":prix,"d":"description courte"},...]}
+Types possibles: Academy, Studio, Upsell, Déplacement.
+Description: max 80 caractères, en une ligne.`,
+      messages:[{role:'user',content:`Récupère TOUTES les entrées de la base Notion Catalogue CPL (collection://311257fa-1555-80d3-bb51-000bd38bdcae).
+Pour chaque entrée retourne: nom (champ Offres), type (champ Type), prix HT (champ Prix HT, 0 si null), description courte (champ Description, première ligne ou 80 premiers caractères).
+Déduplique les entrées identiques (même nom ET même prix).`}],
+      mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]
+    })});
+    const data=await res.json();
+    let txt='';
+    for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
+    txt=txt.replace(/```json|```/g,'').trim();
+    // Extraire le JSON même s'il y a du texte autour
+    const match=txt.match(/\{[\s\S]*\}/);
+    if(match){
+      const parsed=JSON.parse(match[0]);
+      if(parsed.offers&&parsed.offers.length){
+        // Déduplique et assigne ids + flags
+        const seen=new Set();
+        OFFERS=parsed.offers
+          .filter(o=>{const key=o.n+'|'+o.t+'|'+o.p;if(seen.has(key))return false;seen.add(key);return true;})
+          .map((o,i)=>({id:i,...o,...classifyOffer(o.n,o.d)}));
+        toast(`✅ Catalogue chargé (${OFFERS.length} prestations)`,'grn');
+      }
+    }
+  }catch(e){
+    toast('Catalogue Notion indisponible — version locale chargée','ok');
+    loadFallbackCatalogue();
+  }
+  if(loaderEl) loaderEl.style.display='none';
+  renderOffers('');renderDoc();
+}
+
+// Fallback catalogue si Notion inaccessible
+function loadFallbackCatalogue(){
+  OFFERS=[
+    {id:0,n:'Pack "Accompagnement TikTokShop"',t:'Academy',p:4990,d:'Formation TikTok Shop, paramétrage, coaching Live, app satellite, suivi réseaux'},
+    {id:1,n:'Pack "Essentiel"',t:'Studio',p:290,d:'2 vidéos Shorts + 2 Carrousels, tournage & montage'},
+    {id:2,n:'Pack "Starter"',t:'Studio',p:690,d:'Stratégie + 4 vidéos Shorts + 4 Carrousels, direction de contenu'},
+    {id:3,n:'Pack "Expert"',t:'Studio',p:1190,d:'Stratégie + 8 vidéos Shorts + 6 Carrousels, hooks & script'},
+    {id:4,n:'Pack "Ultime"',t:'Studio',p:2490,d:'16 vidéos Shorts + 10 Carrousels + 1 Podcast/mois'},
+    {id:17,n:'Podcast — 1 épisode',t:'Studio',p:180,d:'Captation BlackMagic, Rode/Shure, montage audio & vidéo, 1080p, 1 Short inclus',podcast:true},
+    {id:18,n:'Podcast — Pack 4 épisodes',t:'Studio',p:620,d:'4 épisodes produits, montage complet, 4 Shorts extraits, 1080p',podcast:true},
+    {id:19,n:'Podcast — Formule mensuelle',t:'Studio',p:490,d:'Abonnement mensuel (3 mois min.), nb épisodes & durée à définir, Shorts inclus',podcast:true},
+    {id:20,n:"Montage vidéo — à l'unité",t:'Studio',p:350,d:"Montage d'une vidéo, habillage & sous-titres, 1 correction",qteEnabled:true},
+    {id:21,n:"Miniature (Thumbnail) — à l'unité",t:'Studio',p:35,d:'Design personnalisé, format YouTube/Podcast/Short, PNG HD',qteEnabled:true},
+    {id:22,n:"Script / Écriture — à l'unité",t:'Studio',p:90,d:'Rédaction complète, hooks, call-to-action, 1 révision',qteEnabled:true},
+    {id:23,n:"Short vidéo extrait tournage — à l'unité",t:'Studio',p:60,d:'Short vertical 15-90 sec, sous-titres animés, 1080p',qteEnabled:true},
+    {id:24,n:'Prestation sur mesure',t:'Studio',p:0,d:'Prix défini après brief — générique, habillage sonore, motion design…',surMesure:true},
+    {id:5,n:'Pack 4 Vidéos R.S (Meta/TikTok/Autres)',t:'Upsell',p:400,d:'4 vidéos 20–60s réseaux sociaux, hors ADS'},
+    {id:6,n:'Pack 8 Vidéos R.S + 1 Offerte (Meta/TikTok/Autres)',t:'Upsell',p:800,d:'8 vidéos + 1 offerte, ~1/2 journée de tournage'},
+    {id:7,n:'Pack 12 Vidéos R.S + 2 Offertes (Meta/TikTok/Autres)',t:'Upsell',p:1200,d:'12 vidéos + 2 offertes, 2 demi-journées'},
+    {id:8,n:'Pack 24 Vidéos R.S + 4 Offertes',t:'Upsell',p:2400,d:'24 vidéos + 4 offertes, 4 demi-journées'},
+    {id:9,n:'Stratégie de contenue',t:'Upsell',p:600,d:'Audit, positionnement, ligne éditoriale, planning, hooks'},
+    {id:10,n:'Pack "Studio Live Shopping" Heure',t:'Upsell',p:50,d:'Studio dédié Live Shopping (tarif horaire)'},
+    {id:11,n:'Pack "Studio Live Shopping" Mois',t:'Upsell',p:180,d:'Studio dédié Live Shopping (tarif mensuel)'},
+    {id:12,n:'Pack "Studio Podcast Facecam" 1H',t:'Upsell',p:120,d:'Micro Rode/Shure, caméra BlackMagic, lumières, 1080p'},
+    {id:13,n:'Pack "Studio Podcast 2 à 4 personnes" 1H',t:'Upsell',p:150,d:'4 micros, 3 caméras BlackMagic 4K/6K, objectifs SIGMA'},
+    {id:14,n:'Forfait déplacement 0-20Km',t:'Déplacement',p:49,d:"Installation matériel jusqu'à 20 km"},
+    {id:15,n:'Forfait déplacement 21-50Km',t:'Déplacement',p:89,d:"Installation matériel jusqu'à 50 km"},
+    {id:16,n:'Forfait déplacement 51-100Km',t:'Déplacement',p:149,d:"Installation matériel jusqu'à 100 km"},
+  ];
+}
+
+let podParams={};   // {id: {nb, duree, mensuel, nbMois}}
+let smData={};      // {id: {desc, prix, qte}}
+
+let mode='academy',cart={};
+let cli={marque:'',nom:'',email:'',tel:'',adresse:''};
+const now=new Date();
+const toISO=d=>d.toISOString().slice(0,10);
+const toFR=d=>d.toLocaleDateString('fr-FR');
+const valid30=new Date(now);valid30.setDate(valid30.getDate()+30);
+const fmt=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+document.getElementById('d-today').textContent=toFR(now);
+document.getElementById('d-dates').innerHTML=`Date : ${toFR(now)}<br>Validité : ${toFR(valid30)}`;
+
+function setMode(m){
+  mode=m;
+  document.body.classList.toggle('studio-theme', m==='studio');
+  document.getElementById('btn-a').classList.toggle('on',m==='academy');
+  document.getElementById('btn-s').classList.toggle('on',m==='studio');
+  document.getElementById('d-mode').textContent=m==='academy'?'🎓 Academy':'🎬 Studio';
+  renderOffers(document.getElementById('srch').value);
+}
+
+function pickClient(v){
+  const nc=document.getElementById('nc');
+  if(v==='new'){nc.style.display='block';cli={marque:'',nom:'',email:'',tel:'',adresse:''};updCli();}
+  else if(v){nc.style.display='none';const p=v.split('|');cli={marque:p[0]||'',nom:p[1]||'',tel:p[2]||'',email:p[3]||'',adresse:''};updCli();}
+  else{nc.style.display='none';cli={marque:'',nom:'',email:'',tel:'',adresse:''};updCli();}
+}
+function syncNC(){cli.marque=document.getElementById('nc-m').value;cli.nom=document.getElementById('nc-n').value;cli.email=document.getElementById('nc-e').value;cli.tel=document.getElementById('nc-t').value;cli.adresse=document.getElementById('nc-a').value;updCli();renderDoc();}
+function updCli(){
+  document.getElementById('d-cn').textContent=cli.marque||cli.nom||'—';
+  const l=[];if(cli.nom&&cli.marque)l.push(cli.nom);if(cli.email)l.push(cli.email);if(cli.tel)l.push(cli.tel);if(cli.adresse)l.push(cli.adresse);
+  document.getElementById('d-ci').innerHTML=l.join('<br>');
+  document.getElementById('d-com').textContent=document.getElementById('s-com').value||'Sebastien';
+}
+function tc(t){if(t==='Academy')return 'ta';if(t==='Studio')return 'ts';if(t==='Upsell')return 'tu';return 'td';}
+
+function renderOffers(f){
+  const fc=(f||'').toLowerCase();
+  const zone=document.getElementById('olist');
+  zone.innerHTML='';
+
+  GROUPS.forEach(grp=>{
+    let items=offersForGroup(grp)
+      .filter(o=>!fc||o.n.toLowerCase().includes(fc)||(o.d||'').toLowerCase().includes(fc));
+    if(!items.length) return;
+
+    const title=document.createElement('div');
+    title.className='ogrp-title';
+    title.textContent=grp.label;
+    zone.appendChild(title);
+
+    items.forEach(o=>{
+      const wrap=document.createElement('div');
+
+      if(o.surMesure){
+        // Sur mesure — jusqu'à 3 lignes
+        if(!smData[o.id]) smData[o.id]=[{desc:'',prix:'',qte:1}];
+        const isOn=cart[o.id]!==undefined;
+        const linesHtml=()=>smData[o.id].map((sl,idx)=>`
+          <div class="sm-line">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span style="font-size:10px;font-weight:700;color:var(--ac);min-width:18px">#${idx+1}</span>
+              <input type="text" id="sm-desc-${o.id}-${idx}" placeholder="Description de la prestation *" value="${(sl.desc||'').replace(/"/g,'&quot;')}"
+                oninput="updateSMLine(${o.id},${idx},'desc',this.value)" onclick="event.stopPropagation()" style="flex:1">
+              ${idx>0?`<button onclick="event.stopPropagation();removeSMLine(${o.id},${idx})" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;flex-shrink:0" title="Supprimer">×</button>`:''}
+            </div>
+            <div class="sm-row">
+              <input type="number" id="sm-prix-${o.id}-${idx}" placeholder="Prix HT (€)" value="${sl.prix||''}"
+                oninput="updateSMLine(${o.id},${idx},'prix',this.value)" onclick="event.stopPropagation()">
+              <input type="number" id="sm-qte-${o.id}-${idx}" placeholder="Qté" min="1" value="${sl.qte||1}"
+                oninput="updateSMLine(${o.id},${idx},'qte',this.value)" onclick="event.stopPropagation()">
+            </div>
+            ${idx<smData[o.id].length-1?'<div style="border-top:1px dashed var(--ac-border);margin-top:10px"></div>':''}
+          </div>`).join('');
+
+        const addBtnHtml=()=>smData[o.id].length<3
+          ?`<button class="sm-add-btn" onclick="event.stopPropagation();addSMLine(${o.id})">+ Ajouter une ligne (${smData[o.id].length}/3)</button>`
+          :`<div style="margin-top:8px;font-size:10px;color:var(--muted);text-align:center;padding:4px 0">Maximum 3 prestations atteint</div>`;
+
+        wrap.innerHTML=`
+          <div class="ocard${isOn?' on':''}" id="oc-${o.id}" onclick="tog(${o.id})">
+            <div class="ocard-body">
+              <div class="ocard-name">${o.n}</div>
+              <span class="tag ${tc(o.t)}">${o.t}</span>
+              <div class="ocard-desc">${o.d}</div>
+            </div>
+            <div class="ocard-price">Sur devis</div>
+          </div>
+          <div class="sm-zone${isOn?' open':''}" id="sm-${o.id}">
+            <div id="sm-lines-${o.id}">${linesHtml()}</div>
+            <div id="sm-addbtn-${o.id}">${addBtnHtml()}</div>
+          </div>`;
+      } else if(o.podcast){
+        // Podcast card with params
+        const p=podParams[o.id]||{nb:1,duree:30,mensuel:'non',nbMois:1};
+        wrap.innerHTML=`
+          <div class="ocard${cart[o.id]!==undefined?' on':''}" id="oc-${o.id}" onclick="tog(${o.id})">
+            <div class="ocard-body">
+              <div class="ocard-name">${o.n}</div>
+              <span class="tag ${tc(o.t)}">${o.t}</span>
+              <div class="ocard-desc">${o.d}</div>
+            </div>
+            <div class="ocard-price">${fmt(o.p)}</div>
+          </div>
+          <div class="pod-params${cart[o.id]!==undefined?' open':''}" id="pod-${o.id}">
+            <div class="pod-col"><label>Nb d'épisodes</label>
+              <input type="number" min="1" value="${p.nb}" id="pod-nb-${o.id}" onclick="event.stopPropagation()" oninput="updatePod(${o.id})"></div>
+            <div class="pod-col"><label>Durée (min)</label>
+              <input type="number" min="1" value="${p.duree}" id="pod-dur-${o.id}" onclick="event.stopPropagation()" oninput="updatePod(${o.id})"></div>
+            <div class="pod-col"><label>Mensuel ?</label>
+              <select id="pod-men-${o.id}" onclick="event.stopPropagation()" onchange="updatePod(${o.id});toggleNbMois(${o.id})">
+                <option value="non" ${p.mensuel!=='oui'?'selected':''}>Non</option>
+                <option value="oui" ${p.mensuel==='oui'?'selected':''}>Oui</option>
+              </select></div>
+            <div class="pod-col" id="pod-mois-col-${o.id}" style="${p.mensuel==='oui'?'':'display:none'}"><label>Nb/mois</label>
+              <input type="number" min="1" value="${p.nbMois}" id="pod-mois-${o.id}" onclick="event.stopPropagation()" oninput="updatePod(${o.id})"></div>
+          </div>`;
+      } else {
+        // Standard card
+        wrap.innerHTML=`
+          <div class="ocard${cart[o.id]!==undefined?' on':''}" id="oc-${o.id}" onclick="tog(${o.id})">
+            <div class="ocard-body">
+              <div class="ocard-name">${o.n}</div>
+              <span class="tag ${tc(o.t)}">${o.t}</span>
+              <div class="ocard-desc">${o.d}</div>
+            </div>
+            <div class="ocard-price">${fmt(o.p)}</div>
+          </div>`;
+      }
+      zone.appendChild(wrap);
+    });
+  });
+}
+
+function updatePod(id){
+  podParams[id]={
+    nb: parseInt(document.getElementById('pod-nb-'+id)?.value)||1,
+    duree: parseInt(document.getElementById('pod-dur-'+id)?.value)||30,
+    mensuel: document.getElementById('pod-men-'+id)?.value||'non',
+    nbMois: parseInt(document.getElementById('pod-mois-'+id)?.value)||1,
+  };
+  renderDoc();
+}
+function toggleNbMois(id){
+  const col=document.getElementById('pod-mois-col-'+id);
+  const men=document.getElementById('pod-men-'+id)?.value;
+  if(col) col.style.display=men==='oui'?'':'none';
+}
+function updateSMLine(id,idx,key,val){
+  if(!smData[id]) smData[id]=[{desc:'',prix:'',qte:1}];
+  if(!smData[id][idx]) smData[id][idx]={desc:'',prix:'',qte:1};
+  smData[id][idx][key]=val;
+  renderDoc();
+}
+function addSMLine(id){
+  if(!smData[id]) smData[id]=[{desc:'',prix:'',qte:1}];
+  if(smData[id].length>=3) return;
+  smData[id].push({desc:'',prix:'',qte:1});
+  // Re-render juste la zone sur mesure
+  renderOffers(document.getElementById('srch').value);
+  renderDoc();
+}
+function removeSMLine(id,idx){
+  if(!smData[id]||smData[id].length<=1) return;
+  smData[id].splice(idx,1);
+  renderOffers(document.getElementById('srch').value);
+  renderDoc();
+}
+
+function tog(id){
+  if(cart[id]!==undefined){delete cart[id];}else{cart[id]=1;}
+  const oc=document.getElementById('oc-'+id);
+  if(oc) oc.classList.toggle('on', cart[id]!==undefined);
+  const pod=document.getElementById('pod-'+id);
+  if(pod) pod.classList.toggle('open', cart[id]!==undefined);
+  const sm=document.getElementById('sm-'+id);
+  if(sm) sm.classList.toggle('open', cart[id]!==undefined);
+  renderDoc();
+  setStep(Object.keys(cart).length>0?2:1);
+}
+function updQ(id,v){cart[id]=Math.max(1,parseInt(v)||1);renderDoc();}
+function rm(id){delete cart[id];renderOffers(document.getElementById('srch').value);renderDoc();if(!Object.keys(cart).length)setStep(1);}
+
+function getCartLines(){
+  const lines=[];
+  Object.keys(cart).forEach(k=>{
+    const o=OFFERS.find(x=>x.id==k);
+    if(!o) return;
+    const q=cart[k];
+    if(o.surMesure){
+      const slots=smData[o.id]||[{desc:'',prix:'',qte:1}];
+      slots.forEach(sl=>{
+        const p=parseFloat(sl.prix)||0;
+        const qt=parseInt(sl.qte)||1;
+        if(sl.desc||p>0) lines.push({o,q:qt,p,lt:p*qt,label:sl.desc||o.n,extra:''});
+      });
+      return;
+    }
+    if(o.podcast){
+      const pp=podParams[o.id]||{nb:1,duree:30,mensuel:'non',nbMois:1};
+      let ex=`${pp.nb} ép. · ${pp.duree} min`;
+      if(pp.mensuel==='oui') ex+=` · mensuel (${pp.nbMois}/mois)`;
+      lines.push({o,q,p:o.p,lt:o.p*q,label:o.n,extra:ex});
+      return;
+    }
+    lines.push({o,q,p:o.p,lt:o.p*q,label:o.n,extra:''});
+  });
+  return lines;
+}
+
+function renderDoc(){
+  updCli();
+  const lines=getCartLines();
+  const la=document.getElementById('d-lines'),ta=document.getElementById('d-totals'),ca=document.getElementById('d-cond');
+  if(!lines.length){la.innerHTML='<div class="doc-empty"><div class="doc-empty-icon">📄</div>Sélectionnez des prestations<br>dans le panneau de gauche</div>';ta.innerHTML='';ca.innerHTML='';return;}
+  let sub=0;
+  const rows=lines.map(({o,q,p,lt,label,extra})=>{sub+=lt;return`<tr><td>${label}${extra?`<br><span style="font-size:10px;color:#bbb">${extra}</span>`:''}<br><span style="font-size:10px;color:#bbb">${o.d.substring(0,60)}${o.d.length>60?'…':''}</span></td><td><input class="qin" type="number" min="1" value="${q}" onchange="updQ(${o.id},this.value)"/></td><td>${p===0?'Sur devis':fmt(p)}</td><td>${lt===0?'Sur devis':fmt(lt)}<button class="rmv" onclick="rm(${o.id})">×</button></td></tr>`;}).join('');
+  la.innerHTML=`<table class="lt"><thead><tr><th>Prestation</th><th>Qté</th><th>PU HT</th><th>Total HT</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const rp=parseFloat(document.getElementById('i-rem').value)||0;
+  const rm2=sub*(rp/100);const fin=sub-rm2;
+  let th=`<div class="totals-wrap"><div class="totals-box"><div class="trow"><span>Sous-total HT</span><span>${fmt(sub)}</span></div>`;
+  if(rp>0)th+=`<div class="trow disc"><span>Remise ${rp}%</span><span>− ${fmt(rm2)}</span></div>`;
+  th+=`<div class="trow final"><span>Total HT</span><span>${fmt(fin)}</span></div></div></div><div class="tva-note">Entreprise exonérée de TVA — Art. 293B du CGI</div>`;
+  ta.innerHTML=th;
+  const eng=document.getElementById('s-eng').value,note=document.getElementById('i-note').value;
+  const cp=[];if(eng)cp.push('Engagement : '+eng);cp.push('Devis valable 30 jours');if(note)cp.push(note);
+  ca.innerHTML=`<div class="cond-box" style="margin-top:12px">${cp.join(' &nbsp;|&nbsp; ')}</div>`;
+}
+function setStep(n){for(let i=1;i<=4;i++){document.getElementById('ws'+i).classList.toggle('active',i===n);}}
+function doPDF(){
+  if(!Object.keys(cart).length){toast('Ajoutez au moins une prestation','err');return;}
+  const cn=cli.marque||cli.nom||'Client';
+  const ml=mode==='academy'?'Academy':'Studio';
+  const fn=`Devis_CPL_${ml}_${cn.replace(/\s+/g,'_')}_${toISO(now)}.pdf`;
+  toast('Génération du PDF…','ok');
+  setStep(2);
+  html2pdf().set({margin:[12,12,12,12],filename:fn,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(document.getElementById('doc')).save().then(()=>{toast(`📁 PDF "${fn}" téléchargé !`,'grn');setStep(3);});
+}
+
+/* ── MAIL ── */
+async function openMail(){
+  const nom=cli.marque||cli.nom||'le client';
+  const comm=document.getElementById('s-com').value||'L\'équipe CPL';
+  const modeLabel=mode==='academy'?'CPL Academy':'CPL Studio';
+  const subj=`${nom} — A un pas du Live ! Votre Devis ${modeLabel}`;
+  const prenom=cli.nom ? cli.nom.split(' ')[0] : (cli.marque||'');
+
+  // Si pas d'email en mémoire mais qu'un client est sélectionné → cherche dans Notion
+  let emailFinal = cli.email || '';
+  if(!emailFinal && (cli.marque || cli.nom)){
+    const btnMail=document.querySelector('.btn-mail');
+    const origTxt=btnMail.innerHTML;
+    btnMail.innerHTML='<span class="spin"></span>';
+    btnMail.disabled=true;
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:500,
+        system:'Tu interroges Notion pour trouver l\'email d\'un client. Réponds UNIQUEMENT en JSON: {"email":"adresse@mail.com"} ou {"email":""} si introuvable. Rien d\'autre.',
+        messages:[{role:'user',content:`Dans la base Notion "Clients - CPL" (collection://2a7257fa-1555-81b0-9e20-000bbfec43c5), trouve l'email du client dont la Marque est "${cli.marque||''}" ou le Projet contient "${cli.nom||''}". Retourne uniquement son champ Email.`}],
+        mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]
+      })});
+      const data=await res.json();
+      let txt='';for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
+      try{
+        const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+        if(parsed.email) emailFinal=parsed.email;
+        if(parsed.email) toast('✅ Email récupéré depuis Notion','grn');
+        else toast('Email introuvable dans Notion','ok');
+      }catch(e){}
+    }catch(e){toast('Erreur connexion Notion','err');}
+    btnMail.innerHTML=origTxt;
+    btnMail.disabled=false;
+  }
+
+  document.getElementById('m-to').value=emailFinal;
+  document.getElementById('m-subject').value=subj;
+  document.getElementById('m-body').value=
+`Bonjour ${prenom||nom},
+
+Avant tout je tenais à vous remercier pour le temps accordé lors de notre entrevue.
+
+Comme convenu, vous trouverez ci-joint la plaquette de présentation « Ça Part en Live ! » (voir PJ) accompagnée du devis correspondant à nos échanges.
+
+Je reviendrai vers vous d'ici quelques jours afin de répondre à vos potentielles questions.
+
+Vous souhaitant bonne réception.
+
+Bien à vous,
+
+${comm}
+Toute l'équipe Ça Part en Live !`;
+  document.getElementById('mail-modal').classList.add('open');
+}
+function closeMail(){document.getElementById('mail-modal').classList.remove('open');}
+function sendMail(){
+  const to=document.getElementById('m-to').value;
+  if(!to){toast('Renseignez l\'adresse mail du client','err');return;}
+  const subj=document.getElementById('m-subject').value;
+  const body=document.getElementById('m-body').value;
+  window.location.href=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  closeMail();
+}
+document.getElementById('mail-modal').addEventListener('click',function(e){if(e.target===this)closeMail();});
+
+async function doNotion(){
+  const keys=Object.keys(cart);
+  if(!keys.length){toast('Ajoutez au moins une prestation','err');return;}
+  const btn=document.getElementById('btn-notion');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Enregistrement…';
+  const cl=cli.marque||cli.nom||'Nouveau client';
+  const ml=mode==='academy'?'Academy':'Studio';
+  const lines=getCartLines();
+  let sub=lines.reduce((s,l)=>s+l.lt,0);
+  const rp=parseFloat(document.getElementById('i-rem').value)||0;
+  const fin=sub*(1-rp/100);
+  const eng=document.getElementById('s-eng').value;
+  const rdur=document.getElementById('s-rdur').value;
+  const motif=document.getElementById('i-mot').value;
+  const com=document.getElementById('s-com').value||'Sebastien';
+  const nomDevis=`Devis ${ml} – ${cl} – ${toFR(now)}`;
+  const linesText=lines.map(l=>`- ${l.label}${l.extra?' ('+l.extra+')':''} ×${l.q} → ${l.lt===0?'Sur devis':fmt(l.lt)}`).join('\n');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Tu crées des entrées Notion. Réponds uniquement en JSON: {"success":true,"message":"ok"}',messages:[{role:'user',content:`Crée dans Notion base "Devis CPL" (collection://312257fa-1555-80c9-8f36-000b46282541):
+Nom du Devis: "${nomDevis}"
+Marque: "${cl}" | Nom Complet: "${cli.nom||cl}" | Commercial: "${com}"
+Status: "Envoyé" | Date édition: ${toISO(now)} | Date réponse: ${toISO(valid30)}
+${eng?`Engagement: "${eng}"`:''}${rp>0?` | Remise: ${rp/100}`:''}${rdur?` | Durée remise: "${rdur}"`:''}${motif?` | Motif: "${motif}"`:''} 
+Prestations:\n${linesText}\nTotal HT: ${fmt(fin)}`}],mcp_servers:[{type:'url',url:'https://mcp.notion.com/mcp',name:'notion-mcp'}]})});
+    const data=await res.json();
+    let txt='';for(const b of(data.content||[])){if(b.type==='text')txt+=b.text;}
+    let parsed={success:false};
+    try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(e){}
+    if(parsed.success){
+      document.getElementById('notion-banner').classList.add('show');
+      toast('✅ Devis enregistré dans Notion !','grn');
+      setStep(4);
+    }else{toast('Erreur Notion — réessayez','err');}
+  }catch(e){toast('Erreur de connexion','err');}
+  btn.disabled=false;btn.innerHTML='Enregistrer dans Notion';
+}
+function resetAll(){
+  cart={};cli={marque:'',nom:'',email:'',tel:'',adresse:''};podParams={};smData={};
+  document.querySelectorAll('select').forEach(s=>s.value='');
+  document.querySelectorAll('input:not([type=button]),textarea').forEach(i=>i.value='');
+  document.getElementById('nc').style.display='none';
+  document.getElementById('d-cn').textContent='—';
+  document.getElementById('d-ci').innerHTML='';
+  document.getElementById('notion-banner').classList.remove('show');
+  setStep(1);renderOffers('');renderDoc();
+}
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3500);}
+// ── INIT ──
+loadFallbackCatalogue(); // catalogue local instantané
+renderOffers(''); renderDoc();
+loadCatalogueFromNotion(); // mise à jour depuis Notion en arrière-plan
+</script>
+</body>
+</html>
