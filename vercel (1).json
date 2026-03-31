@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/catalogue.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
