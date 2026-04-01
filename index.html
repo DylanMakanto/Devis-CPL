@@ -198,7 +198,9 @@ table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-
           </select>
         </div>
         <div class="fg"><label class="lbl">Commercial</label>
-          <select id="s-com" onchange="renderDoc()"><option>Sebastien</option><option>Dylan</option><option>Hicham</option><option>Aya</option><option>Ulrich</option></select>
+          <select id="s-com" onchange="renderDoc()">
+            <option value="">— Chargement… —</option>
+          </select>
         </div>
       </div>
       <div class="r3">
@@ -463,7 +465,42 @@ function setMode(m){
   renderOffers(document.getElementById('srch').value);
 }
 
-// ── CLIENTS — chargés dynamiquement depuis Notion ──
+// ── COMMERCIAUX — chargés dynamiquement depuis Notion ──
+const FALLBACK_COMMERCIAUX = [
+  {label:'Dylan Makanto', email:'direction@capartenliveacademy.fr', role:'Direction'},
+  {label:'Sébastien Leroy', email:'production@capartenliveacademy.fr', role:'Production'},
+  {label:'Hicham', email:'', role:'Commercial'},
+  {label:'Aya', email:'', role:'Coach'},
+  {label:'Ulrich', email:'', role:'Commercial'},
+];
+
+function buildCommercialSelect(list){
+  const sel=document.getElementById('s-com');
+  if(!sel) return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">— Sélectionner —</option>';
+  list.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.label;
+    opt.textContent=c.label+(c.role?' ('+c.role+')':'');
+    sel.appendChild(opt);
+  });
+  if(current) sel.value=current;
+}
+
+async function loadCommerciauxFromNotion(){
+  buildCommercialSelect(FALLBACK_COMMERCIAUX);
+  try{
+    const res=await fetch('/api/commerciaux');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(data.commerciaux&&data.commerciaux.length){
+      buildCommercialSelect(data.commerciaux);
+    }
+  }catch(e){
+    // fallback déjà affiché
+  }
+}
 const FALLBACK_CLIENTS = [
   {marque:'MENCIA',nom:'Souria Chadli',email:'',tel:'06 59 38 86 46',adresse:''},
   {marque:'Typania',nom:'Christophe Gabriel',email:'Christophe.gabriel@typania.fr',tel:'0614698704',adresse:'14 Rue de Saulnois, 54520 LAXOU'},
@@ -938,6 +975,7 @@ loadFallbackCatalogue();
 renderOffers(''); renderDoc();
 loadCatalogueFromNotion();
 loadClientsFromNotion();
+loadCommerciauxFromNotion();
 </script>
 </body>
 </html>
