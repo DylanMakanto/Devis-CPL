@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
       .sort((a, b) => b.d.length - a.d.length)
       .filter(o => seen.has(o.n) ? false : !!seen.add(o.n));
 
-    res.setHeader('Cache-Control', 's-maxage=300');
+    res.setHeader('Cache-Control', 's-maxage=0, no-cache');
     return res.status(200).json({ offers: deduped });
 
   } catch (err) {

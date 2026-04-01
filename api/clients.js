@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
       .filter(c => c.marque || c.nom)
       .sort((a, b) => (a.marque || a.nom).localeCompare(b.marque || b.nom));
 
-    res.setHeader('Cache-Control', 's-maxage=300');
+    res.setHeader('Cache-Control', 's-maxage=0, no-cache');
     return res.status(200).json({ clients });
 
   } catch (err) {
