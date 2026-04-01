@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
         const type = p['Type']?.select?.name || '';
         const prix = p['Prix HT']?.number ?? 0;
         const descRaw = (p['Description']?.rich_text || []).map(t => t.plain_text).join('');
-        const desc = descRaw.split('\n').find(l => l.trim())?.replace(/^[-•·]\s*/, '').trim().slice(0, 100) || '';
+        const desc = descRaw.split('\n').find(l => l.trim())?.replace(/^[-•·]\s*/, '').trim().slice(0, 500) || '';
         return { n: nom, t: type, p: prix, d: desc };
       })
       .filter(o => o.n && o.t);
