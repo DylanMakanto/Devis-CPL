@@ -349,11 +349,19 @@ const QTE_KEYWORDS=["à l'unité","a l'unité","à l'unite","unité","— unité
 
 function classifyOffer(nom,desc){
   const n=(nom||'').toLowerCase();
-  const d=(desc||'').toLowerCase();
   if(SURMESURE_KEYWORDS.some(k=>n.includes(k))) return {surMesure:true};
   if(PODCAST_KEYWORDS.some(k=>n.includes(k))) return {podcast:true};
   if(QTE_KEYWORDS.some(k=>n.includes(k))) return {qteEnabled:true};
+  // Prestations vidéo à prix libre (PRÉ/POST/PRODUCTION)
+  if(['pré-production','pre-production','préproduction','production','post-production','postproduction'].some(k=>n===k||n.startsWith(k))) return {prixLibre:true};
   return {};
+}
+
+// Prix libre pour PRÉ/POST/PRODUCTION
+let prixLibreData={};  // {id: prix}
+function updPrix(id,v){
+  prixLibreData[id]=parseFloat(v)||0;
+  renderDoc();
 }
 
 // Groupes fixes par Type — l'ordre et les icônes restent stables
@@ -707,6 +715,11 @@ function getCartLines(){
       lines.push({o,q,p:o.p,lt:o.p*q,label:o.n,extra:ex});
       return;
     }
+    if(o.prixLibre){
+      const p=prixLibreData[o.id]||0;
+      lines.push({o,q,p,lt:p*q,label:o.n,extra:''});
+      return;
+    }
     lines.push({o,q,p:o.p,lt:o.p*q,label:o.n,extra:''});
   });
   return lines;
@@ -721,10 +734,11 @@ function renderDoc(){
   const rows=lines.map(({o,q,p,lt,label,extra,customDesc})=>{
     sub+=lt;
     const desc = customDesc || (o.d||'');
-    const descShort = desc.length>80 ? desc.substring(0,80)+'…' : desc;
-    // Remplacer les sauts de ligne par <br> pour le textarea multi-lignes
-    const descHtml = descShort.replace(/\n/g,'<br>');
-    return`<tr><td>${label}${extra?`<br><span style="font-size:10px;color:#bbb">${extra}</span>`:''}<br><span style="font-size:10px;color:#bbb">${descHtml}</span></td><td><input class="qin" type="number" min="1" value="${q}" onchange="updQ(${o.id},this.value)"/></td><td>${p===0?'Sur devis':fmt(p)}</td><td>${lt===0?'Sur devis':fmt(lt)}<button class="rmv" onclick="rm(${o.id})">×</button></td></tr>`;
+    // Description complète — pas de limite arbitraire, juste nettoyage
+    const descHtml = desc.replace(/\n/g,'<br>');
+    const prixCell = o.prixLibre ? `<input class="qin" type="number" min="0" placeholder="0" value="${p||''}" style="width:60px" onchange="updPrix(${o.id},this.value)" onclick="event.stopPropagation()"/>` : (p===0?'Sur devis':fmt(p));
+    const totalCell = o.prixLibre ? (p>0?fmt(lt):'—') : (lt===0?'Sur devis':fmt(lt));
+    return`<tr><td><strong style="font-size:12px">${label}</strong>${extra?`<br><span style="font-size:10px;color:#bbb">${extra}</span>`:''}<br><span style="font-size:10px;color:#888;line-height:1.6">${descHtml}</span></td><td><input class="qin" type="number" min="1" value="${q}" onchange="updQ(${o.id},this.value)"/></td><td>${prixCell}</td><td>${totalCell}<button class="rmv" onclick="rm(${o.id})">×</button></td></tr>`;
   }).join('');
   la.innerHTML=`<table class="lt"><thead><tr><th>Prestation</th><th>Qté</th><th>PU HT</th><th>Total HT</th></tr></thead><tbody>${rows}</tbody></table>`;
   const rp=parseFloat(document.getElementById('i-rem').value)||0;
@@ -906,7 +920,7 @@ Prestations:\n${linesText}\nTotal HT: ${fmt(fin)}`}],mcp_servers:[{type:'url',ur
   btn.disabled=false;btn.innerHTML='Enregistrer dans Notion';
 }
 function resetAll(){
-  cart={};cli={marque:'',nom:'',email:'',tel:'',adresse:''};podParams={};smData={};
+  cart={};cli={marque:'',nom:'',email:'',tel:'',adresse:''};podParams={};smData={};prixLibreData={};
   document.querySelectorAll('select').forEach(s=>s.value='');
   document.getElementById('s-reglement').value='Virement bancaire';
   document.querySelectorAll('input:not([type=button]),textarea').forEach(i=>i.value='');
