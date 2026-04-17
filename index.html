@@ -964,7 +964,8 @@ document.getElementById('sign-modal').addEventListener('click',function(e){if(e.
 function doSignature(){
   if(!Object.keys(cart).length){toast('Ajoutez au moins une prestation','err');return;}
   const num=document.getElementById('dv-numero')?.value||'';
-  const comm=document.getElementById('s-com')?.value||'Ça Part en Live !';
+  const commRaw=document.getElementById('s-com')?.value||'';
+  const comm=commRaw&&commRaw!=='— Sélectionner —'&&commRaw!=='— Chargement… —'?commRaw:'l\'équipe CPL';
   const modeLabel=mode==='academy'?'CPL Academy':'CPL Studio';
 
   // Pré-remplir signataire
