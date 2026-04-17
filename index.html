@@ -972,7 +972,7 @@ function doSignature(){
   document.getElementById('sign-email').value=cli.email||'';
 
   // Pré-remplir personnalisation email
-  document.getElementById('sign-subject').value=`Ça Part en Live ! - Accédez à votre espace de signature`;
+  document.getElementById('sign-subject').value=`Ça Part en Live ! vous invite à signer votre bon de commande - ${comm}`;
   document.getElementById('sign-sender').value=`${comm} - Votre expert Ça Part en Live !`;
   document.getElementById('sign-message').value=
 `Bonjour ${(cli.nom||cli.marque||'').split(' ')[0]||''},
