@@ -135,10 +135,8 @@ module.exports = async (req, res) => {
       }]
     };
 
-    if (emailMessage || senderName) {
-      srPayload.email_notification = {};
-      if (senderName) srPayload.email_notification.sender = { name: senderName };
-      if (emailMessage) srPayload.email_notification.custom_note = emailMessage;
+    if (emailMessage) {
+      srPayload.email_notification = { custom_note: emailMessage };
     }
 
     const srRes = await apiRequest('POST', '/v3/signature_requests', srPayload, YOUSIGN_API_KEY);
