@@ -315,14 +315,33 @@ table.lt td:nth-child(2),table.lt td:nth-child(3),table.lt td:nth-child(4){text-
 <div class="modal-overlay" id="sign-modal">
   <div class="modal-box">
     <div class="modal-title">✍️ Envoyer pour signature électronique</div>
-    <div class="modal-sub">Le client recevra un email YouSign avec le devis à signer en ligne.</div>
-    <div class="mfg"><label>Nom complet du signataire *</label><input id="sign-name" type="text" placeholder="Prénom Nom du client"></div>
-    <div class="mfg"><label>Email du signataire *</label><input id="sign-email" type="email" placeholder="client@exemple.fr"></div>
+    <div class="modal-sub">Personnalisez l'email YouSign envoyé au client.</div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ac);margin:14px 0 8px">👤 Signataire</div>
+    <div class="r2">
+      <div class="mfg"><label>Nom complet *</label><input id="sign-name" type="text" placeholder="Prénom Nom du client"></div>
+      <div class="mfg"><label>Email *</label><input id="sign-email" type="email" placeholder="client@exemple.fr"></div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ac);margin:14px 0 8px">✉️ Personnalisation de l'email</div>
+    <div class="mfg">
+      <label>Objet de l'email (nom de la demande)</label>
+      <input id="sign-subject" type="text" placeholder="Ex : Votre devis CPL — À signer">
+    </div>
+    <div class="mfg">
+      <label>Nom de l'expéditeur affiché</label>
+      <input id="sign-sender" type="text" placeholder="Ex : Ça Part en Live ! — CPL Studio">
+    </div>
+    <div class="mfg">
+      <label>Message personnalisé (affiché dans l'email YouSign)</label>
+      <textarea id="sign-message" style="height:100px;resize:none;width:100%;padding:8px 10px;border:1px solid var(--cpl-border);border-radius:6px;font-family:inherit;font-size:13px;outline:none;line-height:1.6" placeholder="Ex : Bonjour, veuillez trouver ci-joint votre devis. Merci de le signer pour valider votre commande."></textarea>
+    </div>
+
     <div id="sign-status" style="display:none;padding:12px;border-radius:8px;font-size:13px;margin-top:8px;text-align:center"></div>
+
     <div class="mail-pj-note">
-      <strong>ℹ️ Environnement sandbox (test)</strong>
-      Le client recevra un vrai email YouSign avec le devis en PDF. La signature est simulée — aucune valeur légale en mode sandbox.
-      Passez en Production après les 14 jours d'essai.
+      <strong>ℹ️ Mode Sandbox (test)</strong>
+      Les emails sont bien envoyés mais la signature n'a pas de valeur légale. Passez en Production après vos 14 jours d'essai.
     </div>
     <div class="mail-btn-row">
       <button class="mail-cancel" onclick="closeSignModal()">Annuler</button>
@@ -944,26 +963,48 @@ document.getElementById('sign-modal').addEventListener('click',function(e){if(e.
 /* ── YOUSIGN ── */
 function doSignature(){
   if(!Object.keys(cart).length){toast('Ajoutez au moins une prestation','err');return;}
-  // Pré-remplir avec les infos client
+  const num=document.getElementById('dv-numero')?.value||'';
+  const comm=document.getElementById('s-com')?.value||'Ça Part en Live !';
+  const modeLabel=mode==='academy'?'CPL Academy':'CPL Studio';
+
+  // Pré-remplir signataire
   document.getElementById('sign-name').value=cli.nom||'';
   document.getElementById('sign-email').value=cli.email||'';
+
+  // Pré-remplir personnalisation email
+  document.getElementById('sign-subject').value=`Ça Part en Live ! - Accédez à votre espace de signature`;
+  document.getElementById('sign-sender').value=`${comm} - Votre expert Ça Part en Live !`;
+  document.getElementById('sign-message').value=
+`Bonjour ${(cli.nom||cli.marque||'').split(' ')[0]||''},
+
+Merci pour votre confiance. Vous trouverez ci-joint votre devis ${num?'(réf. '+num+') ':''}.
+
+Pour valider votre commande, merci de le signer électroniquement en cliquant sur le bouton ci-dessous.
+
+Bien à vous,
+${comm}
+Toute l'équipe Ça Part en Live !`;
+
   document.getElementById('sign-status').style.display='none';
   document.getElementById('sign-modal').classList.add('open');
 }
-function closeSignModal(){document.getElementById('sign-modal').classList.remove('open');}
 
 async function sendSignature(){
   const name=document.getElementById('sign-name').value.trim();
   const email=document.getElementById('sign-email').value.trim();
+  const subject=document.getElementById('sign-subject').value.trim();
+  const sender=document.getElementById('sign-sender').value.trim();
+  const message=document.getElementById('sign-message').value.trim();
+
   if(!name||!email){toast('Nom et email du signataire requis','err');return;}
 
   const btn=document.getElementById('sign-send-btn');
   const statusEl=document.getElementById('sign-status');
   btn.disabled=true;
-  btn.innerHTML='<span class="spin"></span>Envoi en cours…';
+  btn.innerHTML='<span class="spin"></span>Génération PDF…';
 
-  // Générer le PDF via html2pdf et le convertir en base64
   try{
+    btn.innerHTML='<span class="spin"></span>Upload YouSign…';
     const pdfBlob=await html2pdf().set({
       margin:[12,12,12,12],
       image:{type:'jpeg',quality:0.98},
@@ -971,7 +1012,6 @@ async function sendSignature(){
       jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
     }).from(document.getElementById('doc')).outputPdf('blob');
 
-    // Convertir le blob en base64
     const pdfBase64=await new Promise((resolve,reject)=>{
       const reader=new FileReader();
       reader.onload=()=>resolve(reader.result.split(',')[1]);
@@ -979,7 +1019,7 @@ async function sendSignature(){
       reader.readAsDataURL(pdfBlob);
     });
 
-    // Envoyer à l'API sign.js
+    btn.innerHTML='<span class="spin"></span>Envoi en cours…';
     const res=await fetch('/api/sign',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -988,19 +1028,22 @@ async function sendSignature(){
         signerName:name,
         signerEmail:email,
         devisNumber:document.getElementById('dv-numero')?.value||'',
-        clientName:cli.marque||cli.nom||name
+        clientName:cli.marque||cli.nom||name,
+        emailSubject:subject,
+        emailMessage:message,
+        senderName:sender
       })
     });
     const data=await res.json();
 
     if(data.success){
       statusEl.style.cssText='display:block;background:#d1fae5;color:#065f46;padding:12px;border-radius:8px;font-size:13px;margin-top:8px;text-align:center';
-      statusEl.innerHTML=`✅ Demande envoyée à <strong>${email}</strong><br><small>ID : ${data.signatureRequestId}</small>`;
+      statusEl.innerHTML=`✅ Demande envoyée à <strong>${email}</strong><br><small style="opacity:0.7">ID YouSign : ${data.signatureRequestId}</small>`;
       toast('✅ Invitation à signer envoyée !','grn');
       setStep(3);
     }else{
       statusEl.style.cssText='display:block;background:#fee2e2;color:#991b1b;padding:12px;border-radius:8px;font-size:13px;margin-top:8px';
-      statusEl.innerHTML='❌ Erreur : '+(data.error||'Erreur inconnue');
+      statusEl.innerHTML='❌ Erreur : '+(data.error||'Erreur inconnue')+(data.detail?'<br><small>'+JSON.stringify(data.detail)+'</small>':'');
     }
   }catch(err){
     statusEl.style.cssText='display:block;background:#fee2e2;color:#991b1b;padding:12px;border-radius:8px;font-size:13px;margin-top:8px';
