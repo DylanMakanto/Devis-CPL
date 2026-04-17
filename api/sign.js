@@ -21,13 +21,13 @@ function apiRequest(method, path, body, apiKey) {
   });
 }
 
-function uploadPDF(pdfBuffer, filename, apiKey) {
+function uploadFile(fileBuffer, filename, nature, apiKey) {
   return new Promise((resolve, reject) => {
-    const boundary = '----CPLBoundary' + Date.now().toString(16);
+    const boundary = '----CPLBoundary' + Date.now().toString(16) + Math.random().toString(16).slice(2);
     const CRLF = '\r\n';
     let pre = '--' + boundary + CRLF;
     pre += 'Content-Disposition: form-data; name="nature"' + CRLF + CRLF;
-    pre += 'signable_document' + CRLF;
+    pre += nature + CRLF;
     pre += '--' + boundary + CRLF;
     pre += 'Content-Disposition: form-data; name="file"; filename="' + filename + '"' + CRLF;
     pre += 'Content-Type: application/pdf' + CRLF + CRLF;
@@ -41,7 +41,7 @@ function uploadPDF(pdfBuffer, filename, apiKey) {
       headers: {
         'Authorization': 'Bearer ' + apiKey,
         'Content-Type': 'multipart/form-data; boundary=' + boundary,
-        'Content-Length': preBuffer.length + pdfBuffer.length + postBuffer.length
+        'Content-Length': preBuffer.length + fileBuffer.length + postBuffer.length
       }
     };
     const req = https.request(options, (res) => {
@@ -51,9 +51,26 @@ function uploadPDF(pdfBuffer, filename, apiKey) {
     });
     req.on('error', reject);
     req.write(preBuffer);
-    req.write(pdfBuffer);
+    req.write(fileBuffer);
     req.write(postBuffer);
     req.end();
+  });
+}
+
+// URL publique de la plaquette CPL — à mettre à jour avec le vrai lien
+const PLAQUETTE_URL = process.env.PLAQUETTE_URL || '';
+
+async function fetchPlaquette() {
+  if (!PLAQUETTE_URL) return null;
+  return new Promise((resolve) => {
+    const url = new URL(PLAQUETTE_URL);
+    const lib = url.protocol === 'https:' ? https : require('http');
+    lib.get(PLAQUETTE_URL, (res) => {
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+      res.on('error', () => resolve(null));
+    }).on('error', () => resolve(null));
   });
 }
 
@@ -77,14 +94,24 @@ module.exports = async (req, res) => {
     const filename = 'Devis_CPL_' + (clientName||'Client').replace(/\s+/g,'_') + '_' + (devisNumber||'XXX') + '.pdf';
     const pdfBuffer = Buffer.from(pdfBase64, 'base64');
 
-    // 1. Upload PDF
-    const uploadRes = await uploadPDF(pdfBuffer, filename, YOUSIGN_API_KEY);
+    // 1. Upload devis PDF (signable)
+    const uploadRes = await uploadFile(pdfBuffer, filename, 'signable_document', YOUSIGN_API_KEY);
     if (uploadRes.status !== 201) {
-      return res.status(500).json({ error: 'Erreur upload YouSign', detail: uploadRes.body });
+      return res.status(500).json({ error: 'Erreur upload devis', detail: uploadRes.body });
     }
     const documentId = uploadRes.body.id;
 
-    // 2. Créer la demande de signature (sans email_notification pour compatibilité sandbox)
+    // 2. Upload plaquette CPL (annexe non signable) si disponible
+    const documentsList = [documentId];
+    const plaquetteBuffer = await fetchPlaquette();
+    if (plaquetteBuffer) {
+      const plaqRes = await uploadFile(plaquetteBuffer, 'Plaquette_CPL.pdf', 'attachment', YOUSIGN_API_KEY);
+      if (plaqRes.status === 201) {
+        documentsList.push(plaqRes.body.id);
+      }
+    }
+
+    // 3. Créer la demande de signature
     const parts = signerName.trim().split(' ');
     const prenom = parts[0] || 'Client';
     const nom = parts.slice(1).join(' ') || 'CPL';
@@ -94,7 +121,7 @@ module.exports = async (req, res) => {
       name: srName,
       delivery_mode: 'email',
       timezone: 'Europe/Paris',
-      documents: [documentId],
+      documents: documentsList,
       signers: [{
         info: { first_name: prenom, last_name: nom, email: signerEmail, locale: 'fr' },
         signature_level: 'electronic_signature',
@@ -114,13 +141,13 @@ module.exports = async (req, res) => {
     }
     const signatureRequestId = srRes.body.id;
 
-    // 3. Activer (envoi email au client)
+    // 4. Activer (envoi email)
     const activateRes = await apiRequest('POST', '/v3/signature_requests/' + signatureRequestId + '/activate', null, YOUSIGN_API_KEY);
     if (activateRes.status !== 200 && activateRes.status !== 201) {
       return res.status(500).json({ error: 'Erreur activation', detail: activateRes.body });
     }
 
-    return res.status(200).json({ success: true, signatureRequestId, signerEmail });
+    return res.status(200).json({ success: true, signatureRequestId, signerEmail, plaquetteJointe: !!plaquetteBuffer });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
